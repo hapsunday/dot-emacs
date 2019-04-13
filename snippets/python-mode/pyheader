@@ -1,0 +1,6 @@
+# name: declare encoding in the source file header
+# key: pyheader
+# contributor: Kai Zhang(hapsunday@gmail.com)
+# --
+#!/usr/bin/env python
+# -*- coding: ${1:utf-8} -*-

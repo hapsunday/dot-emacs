@@ -1,0 +1,10 @@
+# name: add table
+# key: inserttable
+# --
+<!-- BEGIN RECEIVE ORGTBL ${1:YOUR_TABLE_NAME} -->
+<!-- END RECEIVE ORGTBL $1 -->
+
+<!--
+#+ORGTBL: SEND $1 orgtbl-to-gfm :no-escape t
+| $0 |
+-->

@@ -1,0 +1,3058 @@
+default namespace = "http://www.dmg.org/PMML-4_2"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+start =
+  Characteristic
+  | MiningSchema
+  | TextModelSimiliarity
+  | TimeCycle
+  | ComplexPartialScore
+  | Array
+  | Characteristics
+  | Matrix
+  | PCell
+  | ItemRef
+  | LiftGraph
+  | ClusteringModel
+  | LinearKernelType
+  | SupportVectorMachineModel
+  | NeuralOutput
+  | Item
+  | ROC
+  | TimeSeries
+  | Attribute
+  | NeuralInput
+  | ParamMatrix
+  | Decisions
+  | ConfusionMatrix
+  | MultivariateStat
+  | SupportVectorMachine
+  | ComparisonMeasure
+  | PCovCell
+  | simpleMatching
+  | BaselineModel
+  | VectorDictionary
+  | RuleSetModel
+  | RandomLiftGraph
+  | TargetValueStats
+  | Node
+  | CompoundPredicate
+  | NumericInfo
+  | UniformDistribution
+  | EventValues
+  | Quantile
+  | Interval
+  | SigmoidKernelType
+  | BayesInput
+  | SupportVectors
+  | Partition
+  | Header
+  | Apply
+  | PPMatrix
+  | Seasonality_ExpoSmooth
+  | Targets
+  | SimpleRule
+  | VerificationField
+  | SimpleSetPredicate
+  | InstanceField
+  | NearestNeighborModel
+  | InlineTable
+  | DerivedField
+  | MultivariateStats
+  | VerificationFields
+  | TargetValue
+  | Annotation
+  | Segmentation
+  | NormContinuous
+  | XCoordinates
+  | ModelVerification
+  | DataDictionary
+  | Output
+  | Coefficients
+  | DataField
+  | INT-Entries
+  | Extension
+  | Itemset
+  | FieldValue
+  | YCoordinates
+  | DecisionTree
+  | PredictorTerm
+  | TargetValueCounts
+  | CategoricalPredictor
+  | AnyDistribution
+  | BaselineCell
+  | Sequence
+  | TransformationDictionary
+  | TimeSeriesModel
+  | Value
+  | RuleSelectionMethod
+  | ClusteringField
+  | cityBlock
+  | (notAllowed
+     | element INT-SparseArray {
+         attribute defaultValue { xsd:integer }?,
+         attribute n { xsd:integer }?,
+         Indices?,
+         INT-Entries?
+       })
+  | SeasonalTrendDecomposition
+  | ARIMA
+  | Application
+  | True
+  | NormalizedCountTable
+  | ConsequentSequence
+  | RadialBasisKernelType
+  | Neuron
+  | CorrelationValues
+  | TextModelNormalization
+  | SimplePredicate
+  | ROCGraph
+  | PredictiveModelQuality
+  | TargetValueCount
+  | NormDiscrete
+  | REAL-SparseArray
+  | MiningField
+  | SetPredicate
+  | FieldRef
+  | ClassLabels
+  | Coefficient
+  | TargetValueStat
+  | LinearNorm
+  | LocalTransformations
+  | Parameter
+  | TimeValue
+  | NeuralNetwork
+  | Covariances
+  | TextDocument
+  | Category
+  | DiscrStats
+  | PoissonDistribution
+  | binarySimilarity
+  | Scorecard
+  | ParameterList
+  | BaseCumHazardTables
+  | KNNInputs
+  | TextIndexNormalization
+  | AntecedentSequence
+  | TestDistributions
+  | SequenceRule
+  | CompoundRule
+  | Cluster
+  | ClusteringModelQuality
+  | FieldValueCount
+  | CorrelationMethods
+  | TimeException
+  | Regression
+  | ResultField
+  | LiftData
+  | Aggregate
+  | euclidean
+  | ParameterField
+  | Alternate
+  | Anova
+  | AnovaRow
+  | row
+  | TextCorpus
+  | SequenceReference
+  | TreeModel
+  | NaiveBayesModel
+  | PolynomialKernelType
+  | TableLocator
+  | FactorList
+  | DefineFunction
+  | Predictor
+  | Discretize
+  | Correlations
+  | OptimumLiftGraph
+  | PairCounts
+  | ChildParent
+  | NeuralLayer
+  | Time
+  | Target
+  | NeuralOutputs
+  | Segment
+  | AssociationRule
+  | SequenceModel
+  | OutputField
+  | ExponentialSmoothing
+  | ModelLiftGraph
+  | BayesInputs
+  | Timestamp
+  | NumericPredictor
+  | CorrelationFields
+  | RegressionModel
+  | AssociationModel
+  | Baseline
+  | Taxonomy
+  | KohonenMap
+  | KNNInput
+  | tanimoto
+  | UnivariateStats
+  | FieldColumnPair
+  | Comparisons
+  | MapValues
+  | GaussianDistribution
+  | False
+  | PartitionFieldStats
+  | Constant
+  | InstanceFields
+  | Decision
+  | BaselineStratum
+  | REAL-Entries
+  | PPCell
+  | BayesOutput
+  | PCovMatrix
+  | BoundaryValues
+  | ContStats
+  | CountTable
+  | DocumentTermMatrix
+  | DiscretizeBin
+  | (notAllowed
+     | element PMML {
+         attribute version { xsd:string },
+         Header,
+         MiningBuildTask?,
+         DataDictionary,
+         TransformationDictionary?,
+         MODEL-ELEMENT*,
+         Extension*
+       })
+  | TextIndex
+  | MissingValueWeights
+  | VectorFields
+  | CovariateList
+  | squaredEuclidean
+  | GeneralRegressionModel
+  | chebychev
+  | MatCell
+  | MiningModel
+  | minkowski
+  | Trend_ExpoSmooth
+  | SpectralAnalysis
+  | ModelExplanation
+  | Indices
+  | Categories
+  | BoundaryValueMeans
+  | TrainingInstances
+  | Constraints
+  | ScoreDistribution
+  | TimeAnchor
+  | jaccard
+  | NeuralInputs
+  | SupportVector
+  | SetReference
+  | TextModel
+  | RuleSet
+  | Delimiter
+  | TextDictionary
+  | Con
+  | Level
+  | MiningBuildTask
+  | VectorInstance
+  | RegressionTable
+  | Counts
+  | ModelStats
+VectorFields =
+  notAllowed
+  | element VectorFields {
+      attribute numberOfFields { xsd:integer }?,
+      Extension*,
+      FieldRef+
+    }
+Neuron =
+  notAllowed
+  | element Neuron {
+      attribute altitude { xsd:double }?,
+      attribute width { xsd:double }?,
+      attribute bias { xsd:double }?,
+      attribute id { xsd:string },
+      Extension*,
+      Con+
+    }
+AssociationModel =
+  notAllowed
+  | element AssociationModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute numberOfRules { xsd:integer },
+      attribute numberOfItemsets { xsd:integer },
+      attribute numberOfItems { xsd:integer },
+      attribute lengthLimit { xsd:integer }?,
+      attribute minimumConfidence { xsd:decimal },
+      attribute minimumSupport { xsd:decimal },
+      attribute avgNumberOfItemsPerTA { xsd:double }?,
+      attribute maxNumberOfItemsPerTA { xsd:integer }?,
+      attribute numberOfTransactions { xsd:integer },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      LocalTransformations?,
+      Item*,
+      Itemset*,
+      AssociationRule*,
+      ModelVerification?,
+      Extension*
+    }
+ModelExplanation =
+  notAllowed
+  | element ModelExplanation {
+      Extension*,
+      (PredictiveModelQuality+ | empty | ClusteringModelQuality+),
+      Correlations?
+    }
+ExponentialSmoothing =
+  notAllowed
+  | element ExponentialSmoothing {
+      attribute transformation {
+        xsd:NMTOKEN "squareroot"
+        | xsd:NMTOKEN "logarithmic"
+        | xsd:NMTOKEN "none"
+      }?,
+      attribute RMSE { xsd:double }?,
+      Level,
+      Trend_ExpoSmooth?,
+      Seasonality_ExpoSmooth?,
+      TimeValue*
+    }
+SigmoidKernelType =
+  notAllowed
+  | element SigmoidKernelType {
+      attribute coef0 { xsd:double }?,
+      attribute gamma { xsd:double }?,
+      attribute description { xsd:string }?,
+      Extension*
+    }
+XCoordinates =
+  notAllowed
+  | element XCoordinates { Extension*, NUM-ARRAY }
+SupportVector =
+  notAllowed
+  | element SupportVector {
+      attribute vectorId { xsd:string },
+      Extension*
+    }
+PCell =
+  notAllowed
+  | element PCell {
+      attribute df { xsd:integer }?,
+      attribute beta { xsd:double },
+      attribute parameterName { xsd:string },
+      attribute targetCategory { xsd:string }?,
+      Extension*
+    }
+REAL-ARRAY = Array
+RuleSetModel =
+  notAllowed
+  | element RuleSetModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      RuleSet,
+      ModelVerification?,
+      Extension*
+    }
+PolynomialKernelType =
+  notAllowed
+  | element PolynomialKernelType {
+      attribute degree { xsd:double }?,
+      attribute coef0 { xsd:double }?,
+      attribute gamma { xsd:double }?,
+      attribute description { xsd:string }?,
+      Extension*
+    }
+CovariateList =
+  notAllowed
+  | element CovariateList { Extension*, Predictor* }
+DiscretizeBin =
+  notAllowed
+  | element DiscretizeBin {
+      attribute binValue { xsd:string },
+      Extension*,
+      Interval
+    }
+Quantile =
+  notAllowed
+  | element Quantile {
+      attribute quantileValue { xsd:double },
+      attribute quantileLimit { xsd:decimal },
+      Extension*
+    }
+DerivedField =
+  notAllowed
+  | element DerivedField {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      },
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      },
+      attribute displayName { xsd:string }?,
+      attribute name { xsd:string }?,
+      Extension*,
+      EXPRESSION,
+      Value*
+    }
+RadialBasisKernelType =
+  notAllowed
+  | element RadialBasisKernelType {
+      attribute gamma { xsd:double }?,
+      attribute description { xsd:string }?,
+      Extension*
+    }
+TimeSeriesModel =
+  notAllowed
+  | element TimeSeriesModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute bestFit {
+        xsd:string "ARIMA"
+        | xsd:string "ExponentialSmoothing"
+        | xsd:string "SpectralAnalysis"
+        | xsd:string "SeasonalTrendDecomposition"
+      },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      LocalTransformations?,
+      (TimeSeries, (TimeSeries, TimeSeries?)?)?,
+      SpectralAnalysis?,
+      ARIMA?,
+      ExponentialSmoothing?,
+      SeasonalTrendDecomposition?,
+      ModelVerification?,
+      Extension*
+    }
+UniformDistribution =
+  notAllowed
+  | element UniformDistribution {
+      attribute upper { xsd:double },
+      attribute lower { xsd:double },
+      Extension*
+    }
+Taxonomy =
+  notAllowed
+  | element Taxonomy {
+      attribute name { xsd:string },
+      Extension*,
+      ChildParent+
+    }
+NUM-ARRAY = Array
+NeuralInput =
+  notAllowed
+  | element NeuralInput {
+      attribute id { xsd:string },
+      Extension*,
+      DerivedField
+    }
+GeneralRegressionModel =
+  notAllowed
+  | element GeneralRegressionModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute baselineStrataVariable { xsd:string }?,
+      attribute statusVariable { xsd:string }?,
+      attribute subjectIDVariable { xsd:string }?,
+      attribute startTimeVariable { xsd:string }?,
+      attribute endTimeVariable { xsd:string }?,
+      attribute modelDF { xsd:double }?,
+      attribute offsetValue { xsd:double }?,
+      attribute offsetVariable { xsd:string }?,
+      attribute distParameter { xsd:double }?,
+      attribute distribution {
+        xsd:string "gamma"
+        | xsd:string "binomial"
+        | xsd:string "igauss"
+        | xsd:string "tweedie"
+        | xsd:string "normal"
+        | xsd:string "poisson"
+        | xsd:string "negbin"
+      }?,
+      attribute trialsValue { xsd:integer }?,
+      attribute trialsVariable { xsd:string }?,
+      attribute linkParameter { xsd:double }?,
+      attribute linkFunction {
+        xsd:string "loglog"
+        | xsd:string "identity"
+        | xsd:string "oddspower"
+        | xsd:string "probit"
+        | xsd:string "logc"
+        | xsd:string "power"
+        | xsd:string "cloglog"
+        | xsd:string "negbin"
+        | xsd:string "logit"
+        | xsd:string "log"
+      }?,
+      attribute cumulativeLink {
+        xsd:string "loglog"
+        | xsd:string "cauchit"
+        | xsd:string "probit"
+        | xsd:string "cloglog"
+        | xsd:string "logit"
+      }?,
+      attribute targetReferenceCategory { xsd:string }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      attribute modelType {
+        xsd:string "multinomialLogistic"
+        | xsd:string "CoxRegression"
+        | xsd:string "regression"
+        | xsd:string "generalizedLinear"
+        | xsd:string "ordinalMultinomial"
+        | xsd:string "generalLinear"
+      },
+      attribute targetVariableName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      ParameterList,
+      FactorList?,
+      CovariateList?,
+      PPMatrix,
+      PCovMatrix?,
+      ParamMatrix,
+      EventValues?,
+      BaseCumHazardTables?,
+      ModelVerification?,
+      Extension*
+    }
+squaredEuclidean =
+  notAllowed
+  | element squaredEuclidean { Extension* }
+Decision =
+  notAllowed
+  | element Decision {
+      attribute description { xsd:string }?,
+      attribute displayValue { xsd:string }?,
+      attribute value { xsd:string },
+      Extension*
+    }
+TextDictionary =
+  notAllowed
+  | element TextDictionary { Extension*, Taxonomy?, STRING-ARRAY }
+ROC =
+  notAllowed
+  | element ROC {
+      attribute negativeTargetFieldDisplayValue { xsd:string }?,
+      attribute negativeTargetFieldValue { xsd:string }?,
+      attribute positiveTargetFieldDisplayValue { xsd:string }?,
+      attribute positiveTargetFieldValue { xsd:string },
+      Extension*,
+      ROCGraph
+    }
+TextCorpus =
+  notAllowed
+  | element TextCorpus { Extension*, TextDocument* }
+SetReference =
+  notAllowed
+  | element SetReference {
+      attribute setId { xsd:string },
+      Extension*
+    }
+MatCell =
+  notAllowed
+  | element MatCell {
+      attribute row { xsd:integer },
+      attribute col { xsd:integer },
+      xsd:string
+    }
+VectorInstance =
+  notAllowed
+  | element VectorInstance {
+      attribute id { xsd:string },
+      Extension*,
+      (REAL-SparseArray | REAL-ARRAY)
+    }
+ModelLiftGraph =
+  notAllowed
+  | element ModelLiftGraph { Extension*, LiftGraph }
+minkowski =
+  notAllowed
+  | element minkowski {
+      attribute p-parameter { xsd:double },
+      Extension*
+    }
+CorrelationMethods =
+  notAllowed
+  | element CorrelationMethods { Extension*, Matrix }
+PairCounts =
+  notAllowed
+  | element PairCounts {
+      attribute value { xsd:string },
+      Extension*,
+      TargetValueCounts
+    }
+NeuralLayer =
+  notAllowed
+  | element NeuralLayer {
+      attribute normalizationMethod {
+        xsd:string "softmax"
+        | xsd:string "simplemax"
+        | xsd:string "none"
+      }?,
+      attribute altitude { xsd:double }?,
+      attribute width { xsd:double }?,
+      attribute threshold { xsd:double }?,
+      attribute activationFunction {
+        xsd:string "reciprocal"
+        | xsd:string "cosine"
+        | xsd:string "arctan"
+        | xsd:string "exponential"
+        | xsd:string "logistic"
+        | xsd:string "Gauss"
+        | xsd:string "threshold"
+        | xsd:string "tanh"
+        | xsd:string "identity"
+        | xsd:string "sine"
+        | xsd:string "Elliott"
+        | xsd:string "radialBasis"
+        | xsd:string "square"
+      }?,
+      attribute numberOfNeurons { xsd:nonNegativeInteger }?,
+      Extension*,
+      Neuron+
+    }
+NeuralOutput =
+  notAllowed
+  | element NeuralOutput {
+      attribute outputNeuron { xsd:string },
+      Extension*,
+      DerivedField
+    }
+BayesInputs =
+  notAllowed
+  | element BayesInputs { Extension*, BayesInput+ }
+ContStats =
+  notAllowed
+  | element ContStats {
+      attribute totalSquaresSum { xsd:double }?,
+      attribute totalValuesSum { xsd:double }?,
+      Extension*,
+      Interval*,
+      FrequenciesType?
+    }
+Coefficients =
+  notAllowed
+  | element Coefficients {
+      attribute absoluteValue { xsd:double }?,
+      attribute numberOfCoefficients { xsd:integer }?,
+      Extension*,
+      Coefficient+
+    }
+simpleMatching =
+  notAllowed
+  | element simpleMatching { Extension* }
+Comparisons =
+  notAllowed
+  | element Comparisons { Extension*, Matrix }
+InlineTable =
+  notAllowed
+  | element InlineTable { Extension*, row* }
+Apply =
+  notAllowed
+  | element Apply {
+      attribute invalidValueTreatment {
+        xsd:string "returnInvalid"
+        | xsd:string "asMissing"
+        | xsd:string "asIs"
+      }?,
+      attribute defaultValue { xsd:string }?,
+      attribute mapMissingTo { xsd:string }?,
+      attribute function { xsd:string },
+      Extension*,
+      EXPRESSION*
+    }
+BoundaryValues =
+  notAllowed
+  | element BoundaryValues { Extension*, NUM-ARRAY }
+ResultField =
+  notAllowed
+  | element ResultField {
+      attribute value { xsd:string }?,
+      attribute feature {
+        xsd:string "antecedent"
+        | xsd:string "predictedValue"
+        | xsd:string "transformedValue"
+        | xsd:string "support"
+        | xsd:string "consequent"
+        | xsd:string "entityId"
+        | xsd:string "leverage"
+        | xsd:string "reasonCode"
+        | xsd:string "residual"
+        | xsd:string "confidence"
+        | xsd:string "decision"
+        | xsd:string "affinity"
+        | xsd:string "predictedDisplayValue"
+        | xsd:string "standardError"
+        | xsd:string "ruleValue"
+        | xsd:string "ruleId"
+        | xsd:string "rule"
+        | xsd:string "lift"
+        | xsd:string "probability"
+        | xsd:string "entityAffinity"
+        | xsd:string "clusterId"
+        | xsd:string "clusterAffinity"
+        | xsd:string "warning"
+      }?,
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      }?,
+      attribute displayName { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*
+    }
+TableLocator =
+  notAllowed
+  | element TableLocator { Extension* }
+RuleSet =
+  notAllowed
+  | element RuleSet {
+      attribute defaultConfidence { xsd:double }?,
+      attribute defaultScore { xsd:string }?,
+      attribute nbCorrect { xsd:double }?,
+      attribute recordCount { xsd:double }?,
+      Extension*,
+      RuleSelectionMethod+,
+      ScoreDistribution*,
+      Rule*
+    }
+PCovMatrix =
+  notAllowed
+  | element PCovMatrix {
+      attribute type { xsd:string "robust" | xsd:string "model" }?,
+      Extension*,
+      PCovCell+
+    }
+Array =
+  notAllowed
+  | element Array {
+      mixed {
+        attribute type {
+          xsd:string "real" | xsd:string "int" | xsd:string "string"
+        },
+        attribute n { xsd:integer }?
+      }
+    }
+SeasonalTrendDecomposition =
+  notAllowed
+  | element SeasonalTrendDecomposition { anyType }
+SEQUENCE = Extension*, SequenceReference, Time?
+BaselineCell =
+  notAllowed
+  | element BaselineCell {
+      attribute cumHazard { xsd:double },
+      attribute time { xsd:double },
+      Extension*
+    }
+SpectralAnalysis =
+  notAllowed
+  | element SpectralAnalysis { anyType }
+REAL-SparseArray =
+  notAllowed
+  | element REAL-SparseArray {
+      attribute defaultValue { xsd:double }?,
+      attribute n { xsd:integer }?,
+      Indices?,
+      REAL-Entries?
+    }
+AnyDistribution =
+  notAllowed
+  | element AnyDistribution {
+      attribute variance { xsd:double },
+      attribute mean { xsd:double },
+      Extension*
+    }
+CONTINUOUS-DISTRIBUTION-TYPES =
+  (AnyDistribution
+   | GaussianDistribution
+   | PoissonDistribution
+   | UniformDistribution),
+  Extension*
+False =
+  notAllowed
+  | element False { Extension* }
+DecisionTree =
+  notAllowed
+  | element DecisionTree {
+      attribute splitCharacteristic {
+        xsd:string "binarySplit" | xsd:string "multiSplit"
+      }?,
+      attribute noTrueChildStrategy {
+        xsd:string "returnNullPrediction"
+        | xsd:string "returnLastPrediction"
+      }?,
+      attribute missingValuePenalty { xsd:decimal }?,
+      attribute missingValueStrategy {
+        xsd:string "defaultChild"
+        | xsd:string "aggregateNodes"
+        | xsd:string "weightedConfidence"
+        | xsd:string "none"
+        | xsd:string "nullPrediction"
+        | xsd:string "lastPrediction"
+      }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      Output?,
+      ModelStats?,
+      Targets?,
+      LocalTransformations?,
+      ResultField*,
+      Node
+    }
+Covariances =
+  notAllowed
+  | element Covariances { Extension*, Matrix }
+Counts =
+  notAllowed
+  | element Counts {
+      attribute cardinality { xsd:nonNegativeInteger }?,
+      attribute invalidFreq { xsd:double }?,
+      attribute missingFreq { xsd:double }?,
+      attribute totalFreq { xsd:double },
+      Extension*
+    }
+Indices =
+  notAllowed
+  | element Indices {
+      list { xsd:int* }
+    }
+VerificationFields =
+  notAllowed
+  | element VerificationFields { Extension*, VerificationField+ }
+jaccard =
+  notAllowed
+  | element jaccard { Extension* }
+ARIMA =
+  notAllowed
+  | element ARIMA { anyType }
+PREDICATE =
+  SimplePredicate
+  | CompoundPredicate
+  | SimpleSetPredicate
+  | True
+  | False
+ParameterList =
+  notAllowed
+  | element ParameterList { Extension*, Parameter* }
+RandomLiftGraph =
+  notAllowed
+  | element RandomLiftGraph { Extension*, LiftGraph }
+Regression =
+  notAllowed
+  | element Regression {
+      attribute normalizationMethod {
+        xsd:string "loglog"
+        | xsd:string "exp"
+        | xsd:string "softmax"
+        | xsd:string "cauchit"
+        | xsd:string "probit"
+        | xsd:string "simplemax"
+        | xsd:string "none"
+        | xsd:string "cloglog"
+        | xsd:string "logit"
+      }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      Output?,
+      ModelStats?,
+      Targets?,
+      LocalTransformations?,
+      ResultField*,
+      RegressionTable+
+    }
+Discretize =
+  notAllowed
+  | element Discretize {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute defaultValue { xsd:string }?,
+      attribute mapMissingTo { xsd:string }?,
+      attribute field { xsd:string },
+      Extension*,
+      DiscretizeBin*
+    }
+NormContinuous =
+  notAllowed
+  | element NormContinuous {
+      attribute outliers {
+        xsd:string "asMissingValues"
+        | xsd:string "asIs"
+        | xsd:string "asExtremeValues"
+      }?,
+      attribute field { xsd:string },
+      attribute mapMissingTo { xsd:double }?,
+      Extension*,
+      LinearNorm,
+      LinearNorm,
+      LinearNorm*
+    }
+CorrelationFields =
+  notAllowed
+  | element CorrelationFields { Extension*, STRING-ARRAY }
+COUNT-TABLE-TYPE =
+  (attribute sample { xsd:double }?,
+   Extension*,
+   (FieldValue+ | FieldValueCount+)),
+  empty
+RuleSelectionMethod =
+  notAllowed
+  | element RuleSelectionMethod {
+      attribute criterion {
+        xsd:string "firstHit"
+        | xsd:string "weightedMax"
+        | xsd:string "weightedSum"
+      },
+      Extension*
+    }
+element1 =
+  element * {
+    mixed {
+      (element1
+       | attribute * { text })*
+    }
+  }
+element0 =
+  element * {
+    mixed {
+      (element0
+       | attribute * { text })*
+    }
+  }
+ComplexPartialScore =
+  notAllowed
+  | element ComplexPartialScore { Extension*, EXPRESSION }
+element2 =
+  element * {
+    mixed {
+      (attribute * { text }
+       | element2)*
+    }
+  }
+SimpleRule =
+  notAllowed
+  | element SimpleRule {
+      attribute weight { xsd:double }?,
+      attribute confidence { xsd:double }?,
+      attribute nbCorrect { xsd:double }?,
+      attribute recordCount { xsd:double }?,
+      attribute score { xsd:string },
+      attribute id { xsd:string }?,
+      Extension*,
+      PREDICATE,
+      ScoreDistribution*
+    }
+Predictor =
+  notAllowed
+  | element Predictor {
+      attribute contrastMatrixType { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*,
+      Categories?,
+      Matrix?
+    }
+BoundaryValueMeans =
+  notAllowed
+  | element BoundaryValueMeans { Extension*, NUM-ARRAY }
+Sequence =
+  notAllowed
+  | element Sequence {
+      attribute support { xsd:double }?,
+      attribute occurrence { xsd:integer }?,
+      attribute numberOfSets { xsd:integer }?,
+      attribute id { xsd:string },
+      Extension*,
+      SetReference,
+      (Extension*, Delimiter, Time?, SetReference)*,
+      Time?
+    }
+Itemset =
+  notAllowed
+  | element Itemset {
+      attribute numberOfItems { xsd:nonNegativeInteger }?,
+      attribute support { xsd:decimal }?,
+      attribute id { xsd:string },
+      Extension*,
+      ItemRef*
+    }
+INT-ARRAY = Array
+OptimumLiftGraph =
+  notAllowed
+  | element OptimumLiftGraph { Extension*, LiftGraph }
+FieldValue =
+  notAllowed
+  | element FieldValue {
+      attribute value { text },
+      attribute field { xsd:string },
+      Extension*,
+      (FieldValue+ | FieldValueCount+)
+    }
+Annotation =
+  notAllowed
+  | element Annotation {
+      mixed { Extension* }
+    }
+NumericPredictor =
+  notAllowed
+  | element NumericPredictor {
+      attribute coefficient { xsd:double },
+      attribute exponent { xsd:integer }?,
+      attribute name { xsd:string },
+      Extension*
+    }
+Item =
+  notAllowed
+  | element Item {
+      attribute weight { xsd:double }?,
+      attribute mappedValue { xsd:string }?,
+      attribute value { xsd:string },
+      attribute id { xsd:string },
+      Extension*
+    }
+LocalTransformations =
+  notAllowed
+  | element LocalTransformations { Extension*, DerivedField* }
+NearestNeighborModel =
+  notAllowed
+  | element NearestNeighborModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute threshold { xsd:double }?,
+      attribute instanceIdVariable { xsd:string }?,
+      attribute categoricalScoringMethod {
+        xsd:string "majorityVote" | xsd:string "weightedMajorityVote"
+      }?,
+      attribute continuousScoringMethod {
+        xsd:string "median"
+        | xsd:string "weightedAverage"
+        | xsd:string "average"
+      }?,
+      attribute numberOfNeighbors { xsd:integer },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      TrainingInstances,
+      ComparisonMeasure,
+      KNNInputs,
+      ModelVerification?,
+      Extension*
+    }
+VerificationField =
+  notAllowed
+  | element VerificationField {
+      attribute zeroThreshold { xsd:double }?,
+      attribute precision { xsd:double }?,
+      attribute column { xsd:string }?,
+      attribute field { xsd:string },
+      Extension*
+    }
+Alternate =
+  notAllowed
+  | element Alternate { CONTINUOUS-DISTRIBUTION-TYPES }
+DataField =
+  notAllowed
+  | element DataField {
+      attribute isCyclic { xsd:string "1" | xsd:string "0" }?,
+      attribute taxonomy { xsd:string }?,
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      },
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      },
+      attribute displayName { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*,
+      Interval*,
+      Value*
+    }
+UnivariateStats =
+  notAllowed
+  | element UnivariateStats {
+      attribute weighted { xsd:string "1" | xsd:string "0" }?,
+      attribute field { xsd:string }?,
+      Extension*,
+      Counts?,
+      NumericInfo?,
+      DiscrStats?,
+      ContStats?,
+      Anova?
+    }
+MissingValueWeights =
+  notAllowed
+  | element MissingValueWeights { Extension*, NUM-ARRAY }
+MiningSchema =
+  notAllowed
+  | element MiningSchema { Extension*, MiningField+ }
+RegressionModel =
+  notAllowed
+  | element RegressionModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute normalizationMethod {
+        xsd:string "loglog"
+        | xsd:string "exp"
+        | xsd:string "softmax"
+        | xsd:string "cauchit"
+        | xsd:string "probit"
+        | xsd:string "simplemax"
+        | xsd:string "none"
+        | xsd:string "cloglog"
+        | xsd:string "logit"
+      }?,
+      attribute targetFieldName { xsd:string }?,
+      attribute modelType {
+        xsd:string "stepwisePolynomialRegression"
+        | xsd:string "logisticRegression"
+        | xsd:string "linearRegression"
+      }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      RegressionTable+,
+      ModelVerification?,
+      Extension*
+    }
+RegressionTable =
+  notAllowed
+  | element RegressionTable {
+      attribute targetCategory { xsd:string }?,
+      attribute intercept { xsd:double },
+      Extension*,
+      NumericPredictor*,
+      CategoricalPredictor*,
+      PredictorTerm*
+    }
+tanimoto =
+  notAllowed
+  | element tanimoto { Extension* }
+Level =
+  notAllowed
+  | element Level {
+      attribute smoothedValue { xsd:double }?,
+      attribute alpha { xsd:double }?
+    }
+Application =
+  notAllowed
+  | element Application {
+      attribute version { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*
+    }
+DefineFunction =
+  notAllowed
+  | element DefineFunction {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      },
+      attribute name { xsd:string },
+      Extension*,
+      ParameterField+,
+      EXPRESSION
+    }
+row =
+  notAllowed
+  | element row { element1, element1, element1* }
+chebychev =
+  notAllowed
+  | element chebychev { Extension* }
+ScoreDistribution =
+  notAllowed
+  | element ScoreDistribution {
+      attribute probability { xsd:decimal }?,
+      attribute confidence { xsd:decimal }?,
+      attribute recordCount { xsd:double },
+      attribute value { xsd:string },
+      Extension*
+    }
+Category =
+  notAllowed
+  | element Category {
+      attribute value { xsd:string },
+      Extension*
+    }
+INT-Entries =
+  notAllowed
+  | element INT-Entries {
+      list { xsd:int* }
+    }
+NaiveBayesModel =
+  notAllowed
+  | element NaiveBayesModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute threshold { xsd:double },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      BayesInputs,
+      BayesOutput,
+      ModelVerification?,
+      Extension*
+    }
+Segment =
+  notAllowed
+  | element Segment {
+      attribute weight { xsd:double }?,
+      attribute id { xsd:string }?,
+      Extension*,
+      PREDICATE,
+      MODEL-ELEMENT
+    }
+ModelStats =
+  notAllowed
+  | element ModelStats {
+      Extension*, UnivariateStats*, MultivariateStats*
+    }
+SetPredicate =
+  notAllowed
+  | element SetPredicate {
+      attribute operator { xsd:string "supersetOf" }?,
+      attribute field { xsd:string },
+      attribute id { xsd:string },
+      Extension*,
+      STRING-ARRAY
+    }
+MiningBuildTask =
+  notAllowed
+  | element MiningBuildTask { Extension* }
+ComparisonMeasure =
+  notAllowed
+  | element ComparisonMeasure {
+      attribute maximum { xsd:double }?,
+      attribute minimum { xsd:double }?,
+      attribute compareFunction {
+        xsd:string "delta"
+        | xsd:string "absDiff"
+        | xsd:string "equal"
+        | xsd:string "table"
+        | xsd:string "gaussSim"
+      }?,
+      attribute kind {
+        xsd:string "distance" | xsd:string "similarity"
+      },
+      Extension*,
+      (euclidean
+       | squaredEuclidean
+       | chebychev
+       | cityBlock
+       | minkowski
+       | simpleMatching
+       | jaccard
+       | tanimoto
+       | binarySimilarity)
+    }
+AnovaRow =
+  notAllowed
+  | element AnovaRow {
+      attribute pValue { xsd:decimal }?,
+      attribute fValue { xsd:double }?,
+      attribute meanOfSquares { xsd:double }?,
+      attribute degreesOfFreedom { xsd:double },
+      attribute sumOfSquares { xsd:double },
+      attribute type {
+        xsd:string "Model" | xsd:string "Total" | xsd:string "Error"
+      },
+      Extension*
+    }
+LinearNorm =
+  notAllowed
+  | element LinearNorm {
+      attribute norm { xsd:double },
+      attribute orig { xsd:double },
+      Extension*
+    }
+STRING-ARRAY = Array
+PredictorTerm =
+  notAllowed
+  | element PredictorTerm {
+      attribute coefficient { xsd:double },
+      attribute name { xsd:string }?,
+      Extension*,
+      FieldRef+
+    }
+Attribute =
+  notAllowed
+  | element Attribute {
+      attribute partialScore { xsd:double }?,
+      attribute reasonCode { xsd:string }?,
+      Extension*,
+      PREDICATE,
+      ComplexPartialScore?
+    }
+KNNInput =
+  notAllowed
+  | element KNNInput {
+      attribute compareFunction {
+        xsd:string "delta"
+        | xsd:string "absDiff"
+        | xsd:string "equal"
+        | xsd:string "table"
+        | xsd:string "gaussSim"
+      }?,
+      attribute fieldWeight { xsd:double }?,
+      attribute field { xsd:string },
+      Extension*
+    }
+PPCell =
+  notAllowed
+  | element PPCell {
+      attribute targetCategory { xsd:string }?,
+      attribute parameterName { xsd:string },
+      attribute predictorName { xsd:string },
+      attribute value { xsd:string },
+      Extension*
+    }
+cityBlock =
+  notAllowed
+  | element cityBlock { Extension* }
+PredictiveModelQuality =
+  notAllowed
+  | element PredictiveModelQuality {
+      attribute AICc { xsd:double }?,
+      attribute BIC { xsd:double }?,
+      attribute AIC { xsd:double }?,
+      attribute fStatistic { xsd:double }?,
+      attribute degreesOfFreedom { xsd:double }?,
+      attribute numOfPredictors { xsd:double }?,
+      attribute numOfRecordsWeighted { xsd:double }?,
+      attribute numOfRecords { xsd:double }?,
+      attribute sumSquaredRegression { xsd:double }?,
+      attribute sumSquaredError { xsd:double }?,
+      attribute adj-r-squared { xsd:double }?,
+      attribute r-squared { xsd:double }?,
+      attribute rootMeanSquaredError { xsd:double }?,
+      attribute meanSquaredError { xsd:double }?,
+      attribute meanAbsoluteError { xsd:double }?,
+      attribute meanError { xsd:double }?,
+      attribute dataUsage {
+        xsd:string "training"
+        | xsd:string "validation"
+        | xsd:string "test"
+      }?,
+      attribute dataName { xsd:string }?,
+      attribute targetField { xsd:string },
+      Extension*,
+      ConfusionMatrix?,
+      LiftData?,
+      ROC?
+    }
+Characteristics =
+  notAllowed
+  | element Characteristics { Extension*, Characteristic+ }
+AssociationRule =
+  notAllowed
+  | element AssociationRule {
+      attribute id { xsd:string }?,
+      attribute affinity { xsd:decimal }?,
+      attribute leverage { xsd:float }?,
+      attribute lift { xsd:float }?,
+      attribute confidence { xsd:decimal },
+      attribute support { xsd:decimal },
+      attribute consequent { xsd:string },
+      attribute antecedent { xsd:string },
+      Extension*
+    }
+TargetValueCounts =
+  notAllowed
+  | element TargetValueCounts { Extension*, TargetValueCount+ }
+FieldValueCount =
+  notAllowed
+  | element FieldValueCount {
+      attribute count { xsd:double },
+      attribute value { text },
+      attribute field { xsd:string },
+      Extension*
+    }
+DiscrStats =
+  notAllowed
+  | element DiscrStats {
+      attribute modalValue { xsd:string }?,
+      Extension*,
+      (Array, Array?)?
+    }
+MultivariateStat =
+  notAllowed
+  | element MultivariateStat {
+      attribute confidenceUpperBound { xsd:double }?,
+      attribute confidenceLowerBound { xsd:double }?,
+      attribute confidenceLevel { xsd:decimal }?,
+      attribute pValueFinal { xsd:decimal }?,
+      attribute pValueInitial { xsd:decimal }?,
+      attribute pValueAlpha { xsd:decimal }?,
+      attribute dF { xsd:double }?,
+      attribute fStatistic { xsd:double }?,
+      attribute chiSquareValue { xsd:double }?,
+      attribute tValue { xsd:double }?,
+      attribute stdError { xsd:double }?,
+      attribute importance { xsd:decimal }?,
+      attribute isIntercept { xsd:boolean }?,
+      attribute exponent { xsd:integer }?,
+      attribute category { xsd:string }?,
+      attribute name { xsd:string }?,
+      Extension*
+    }
+KohonenMap =
+  notAllowed
+  | element KohonenMap {
+      attribute coord3 { xsd:float }?,
+      attribute coord2 { xsd:float }?,
+      attribute coord1 { xsd:float }?,
+      Extension*
+    }
+AntecedentSequence =
+  notAllowed
+  | element AntecedentSequence { SEQUENCE }
+GaussianDistribution =
+  notAllowed
+  | element GaussianDistribution {
+      attribute variance { xsd:double },
+      attribute mean { xsd:double },
+      Extension*
+    }
+ROCGraph =
+  notAllowed
+  | element ROCGraph {
+      Extension*, XCoordinates, YCoordinates, BoundaryValues?
+    }
+TargetValueCount =
+  notAllowed
+  | element TargetValueCount {
+      attribute count { xsd:double },
+      attribute value { xsd:string },
+      Extension*
+    }
+ConfusionMatrix =
+  notAllowed
+  | element ConfusionMatrix { Extension*, ClassLabels, Matrix }
+CompoundPredicate =
+  notAllowed
+  | element CompoundPredicate {
+      attribute booleanOperator {
+        xsd:string "surrogate"
+        | xsd:string "xor"
+        | xsd:string "or"
+        | xsd:string "and"
+      },
+      Extension*,
+      PREDICATE,
+      PREDICATE,
+      PREDICATE*
+    }
+Matrix =
+  notAllowed
+  | element Matrix {
+      attribute offDiagDefault { xsd:double }?,
+      attribute diagDefault { xsd:double }?,
+      attribute nbCols { xsd:integer }?,
+      attribute nbRows { xsd:integer }?,
+      attribute kind {
+        xsd:string "any"
+        | xsd:string "symmetric"
+        | xsd:string "diagonal"
+      }?,
+      (NUM-ARRAY+ | MatCell+)?
+    }
+PoissonDistribution =
+  notAllowed
+  | element PoissonDistribution {
+      attribute mean { xsd:double },
+      Extension*
+    }
+KNNInputs =
+  notAllowed
+  | element KNNInputs { Extension*, KNNInput+ }
+Header =
+  notAllowed
+  | element Header {
+      attribute description { xsd:string }?,
+      attribute copyright { xsd:string }?,
+      Extension*,
+      Application?,
+      Annotation*,
+      Timestamp?
+    }
+SequenceReference =
+  notAllowed
+  | element SequenceReference {
+      attribute seqId { xsd:string },
+      Extension*
+    }
+True =
+  notAllowed
+  | element True { Extension* }
+Coefficient =
+  notAllowed
+  | element Coefficient {
+      attribute value { xsd:double }?,
+      Extension*
+    }
+Extension =
+  notAllowed
+  | element Extension {
+      element0*,
+      attribute extender { xsd:string }?,
+      attribute name { xsd:string }?,
+      attribute value { xsd:string }?
+    }
+Interval =
+  notAllowed
+  | element Interval {
+      attribute rightMargin { xsd:double }?,
+      attribute leftMargin { xsd:double }?,
+      attribute closure {
+        xsd:string "closedOpen"
+        | xsd:string "openClosed"
+        | xsd:string "closedClosed"
+        | xsd:string "openOpen"
+      },
+      Extension*
+    }
+Segmentation =
+  notAllowed
+  | element Segmentation {
+      attribute multipleModelMethod {
+        xsd:string "median"
+        | xsd:string "max"
+        | xsd:string "selectFirst"
+        | xsd:string "majorityVote"
+        | xsd:string "sum"
+        | xsd:string "modelChain"
+        | xsd:string "weightedAverage"
+        | xsd:string "selectAll"
+        | xsd:string "average"
+        | xsd:string "weightedMajorityVote"
+      },
+      Extension*,
+      Segment+
+    }
+SequenceModel =
+  notAllowed
+  | element SequenceModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute avgNumberOfTAsPerTAGroup { xsd:double }?,
+      attribute maxNumberOfTAsPerTAGroup { xsd:integer }?,
+      attribute numberOfTransactionGroups { xsd:integer }?,
+      attribute avgNumberOfItemsPerTransaction { xsd:double }?,
+      attribute maxNumberOfItemsPerTransaction { xsd:integer }?,
+      attribute numberOfTransactions { xsd:integer }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      ModelStats?,
+      LocalTransformations?,
+      Constraints?,
+      Item*,
+      Itemset*,
+      SetPredicate*,
+      Sequence+,
+      SequenceRule*,
+      Extension*
+    }
+FieldRef =
+  notAllowed
+  | element FieldRef {
+      attribute mapMissingTo { xsd:string }?,
+      attribute field { xsd:string },
+      Extension*
+    }
+Scorecard =
+  notAllowed
+  | element Scorecard {
+      attribute isScorable { xsd:boolean }?,
+      attribute baselineMethod {
+        xsd:string "min"
+        | xsd:string "other"
+        | xsd:string "max"
+        | xsd:string "mean"
+        | xsd:string "neutral"
+      }?,
+      attribute baselineScore { xsd:double }?,
+      attribute reasonCodeAlgorithm {
+        xsd:string "pointsAbove" | xsd:string "pointsBelow"
+      }?,
+      attribute useReasonCodes { xsd:boolean }?,
+      attribute initialScore { xsd:double }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      Characteristics,
+      ModelVerification?,
+      Extension*
+    }
+anyType =
+  mixed {
+    (attribute * { text }
+     | element2)*
+  },
+  empty
+Time =
+  notAllowed
+  | element Time {
+      attribute standardDeviation { xsd:double }?,
+      attribute mean { xsd:double }?,
+      attribute max { xsd:double }?,
+      attribute min { xsd:double }?,
+      Extension*
+    }
+BaselineModel =
+  notAllowed
+  | element BaselineModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      TestDistributions,
+      ModelVerification?,
+      Extension*
+    }
+TransformationDictionary =
+  notAllowed
+  | element TransformationDictionary {
+      Extension*, DefineFunction*, DerivedField*
+    }
+MiningModel =
+  notAllowed
+  | element MiningModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      (Regression | DecisionTree)*,
+      Segmentation?,
+      ModelVerification?,
+      Extension*
+    }
+Baseline =
+  notAllowed
+  | element Baseline {
+      CONTINUOUS-DISTRIBUTION-TYPES
+      | CountTable
+      | NormalizedCountTable
+      | (FieldRef, FieldRef, FieldRef*)
+    }
+Parameter =
+  notAllowed
+  | element Parameter {
+      attribute referencePoint { xsd:double }?,
+      attribute label { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*
+    }
+ConsequentSequence =
+  notAllowed
+  | element ConsequentSequence { SEQUENCE }
+BayesOutput =
+  notAllowed
+  | element BayesOutput {
+      attribute fieldName { xsd:string },
+      Extension*,
+      TargetValueCounts
+    }
+Trend_ExpoSmooth =
+  notAllowed
+  | element Trend_ExpoSmooth {
+      attribute smoothedValue { xsd:double }?,
+      attribute phi { xsd:double }?,
+      attribute gamma { xsd:double }?,
+      attribute trend {
+        xsd:NMTOKEN "damped_additive"
+        | xsd:NMTOKEN "multiplicative"
+        | xsd:NMTOKEN "additive"
+        | xsd:NMTOKEN "damped_multiplicative"
+        | xsd:NMTOKEN "polynomial_exponential"
+      }?,
+      REAL-ARRAY?
+    }
+Timestamp =
+  notAllowed
+  | element Timestamp {
+      mixed { Extension* }
+    }
+Constant =
+  notAllowed
+  | element Constant {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      xsd:string
+    }
+ChildParent =
+  notAllowed
+  | element ChildParent {
+      attribute isRecursive { xsd:string "yes" | xsd:string "no" }?,
+      attribute parentLevelField { xsd:string }?,
+      attribute parentField { xsd:string },
+      attribute childField { xsd:string },
+      Extension*,
+      FieldColumnPair*,
+      (TableLocator | InlineTable)
+    }
+Decisions =
+  notAllowed
+  | element Decisions {
+      attribute description { xsd:string }?,
+      attribute businessProblem { xsd:string }?,
+      Extension*,
+      Decision+
+    }
+Con =
+  notAllowed
+  | element Con {
+      attribute weight { xsd:double },
+      attribute from { xsd:string },
+      Extension*
+    }
+DataDictionary =
+  notAllowed
+  | element DataDictionary {
+      attribute numberOfFields { xsd:nonNegativeInteger }?,
+      Extension*,
+      DataField+,
+      Taxonomy*
+    }
+CountTable =
+  notAllowed
+  | element CountTable { COUNT-TABLE-TYPE }
+REAL-Entries =
+  notAllowed
+  | element REAL-Entries {
+      list { xsd:double* }
+    }
+NeuralOutputs =
+  notAllowed
+  | element NeuralOutputs {
+      attribute numberOfOutputs { xsd:nonNegativeInteger }?,
+      Extension*,
+      NeuralOutput+
+    }
+FieldColumnPair =
+  notAllowed
+  | element FieldColumnPair {
+      attribute column { xsd:string },
+      attribute field { xsd:string },
+      Extension*
+    }
+TrainingInstances =
+  notAllowed
+  | element TrainingInstances {
+      attribute fieldCount { xsd:integer }?,
+      attribute recordCount { xsd:integer }?,
+      attribute isTransformed { xsd:boolean }?,
+      Extension*,
+      InstanceFields,
+      (TableLocator | InlineTable)
+    }
+EventValues =
+  notAllowed
+  | element EventValues { Extension*, Value*, Interval* }
+LiftData =
+  notAllowed
+  | element LiftData {
+      attribute rankingQuality { xsd:double }?,
+      attribute targetFieldDisplayValue { xsd:string }?,
+      attribute targetFieldValue { xsd:string }?,
+      Extension*,
+      ModelLiftGraph,
+      OptimumLiftGraph?,
+      RandomLiftGraph?
+    }
+ClusteringField =
+  notAllowed
+  | element ClusteringField {
+      attribute compareFunction {
+        xsd:string "delta"
+        | xsd:string "absDiff"
+        | xsd:string "equal"
+        | xsd:string "table"
+        | xsd:string "gaussSim"
+      }?,
+      attribute similarityScale { xsd:double }?,
+      attribute fieldWeight { xsd:double }?,
+      attribute isCenterField {
+        xsd:string "false" | xsd:string "true"
+      }?,
+      attribute field { xsd:string },
+      Extension*,
+      Comparisons?
+    }
+Aggregate =
+  notAllowed
+  | element Aggregate {
+      attribute sqlWhere { xsd:string }?,
+      attribute groupField { xsd:string }?,
+      attribute function {
+        xsd:string "min"
+        | xsd:string "multiset"
+        | xsd:string "max"
+        | xsd:string "count"
+        | xsd:string "sum"
+        | xsd:string "average"
+      },
+      attribute field { xsd:string },
+      Extension*
+    }
+TextModel =
+  notAllowed
+  | element TextModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute numberOfDocuments { xsd:integer },
+      attribute numberOfTerms { xsd:integer },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      TextDictionary,
+      TextCorpus,
+      DocumentTermMatrix,
+      TextModelNormalization?,
+      TextModelSimiliarity?,
+      ModelVerification?,
+      Extension*
+    }
+CompoundRule =
+  notAllowed
+  | element CompoundRule { Extension*, PREDICATE, Rule+ }
+TestDistributions =
+  notAllowed
+  | element TestDistributions {
+      attribute normalizationScheme { xsd:string }?,
+      attribute weightField { xsd:string }?,
+      attribute windowSize { xsd:integer }?,
+      attribute resetValue { xsd:double }?,
+      attribute testStatistic {
+        xsd:string "chiSquareIndependence"
+        | xsd:string "zValue"
+        | xsd:string "scalarProduct"
+        | xsd:string "CUSUM"
+        | xsd:string "chiSquareDistribution"
+      },
+      attribute field { xsd:string },
+      Baseline,
+      Alternate?,
+      Extension*
+    }
+Anova =
+  notAllowed
+  | element Anova {
+      attribute target { xsd:string }?,
+      Extension*,
+      AnovaRow,
+      AnovaRow,
+      AnovaRow
+    }
+SupportVectors =
+  notAllowed
+  | element SupportVectors {
+      attribute numberOfAttributes { xsd:integer }?,
+      attribute numberOfSupportVectors { xsd:integer }?,
+      Extension*,
+      SupportVector+
+    }
+SupportVectorMachine =
+  notAllowed
+  | element SupportVectorMachine {
+      attribute threshold { xsd:double }?,
+      attribute alternateTargetCategory { xsd:string }?,
+      attribute targetCategory { xsd:string }?,
+      Extension*,
+      SupportVectors?,
+      Coefficients
+    }
+TextIndex =
+  notAllowed
+  | element TextIndex {
+      attribute tokenize { xsd:boolean }?,
+      attribute wordSeparatorCharacterRE { xsd:string }?,
+      attribute countHits {
+        xsd:string "allHits" | xsd:string "bestHits"
+      }?,
+      attribute maxLevenshteinDistance { xsd:integer }?,
+      attribute isCaseSensitive { xsd:boolean }?,
+      attribute localTermWeights {
+        xsd:string "binary"
+        | xsd:string "termFrequency"
+        | xsd:string "logarithmic"
+        | xsd:string "augmentedNormalizedTermFrequency"
+      }?,
+      attribute textField { xsd:string },
+      Extension*,
+      TextIndexNormalization*,
+      EXPRESSION
+    }
+Delimiter =
+  notAllowed
+  | element Delimiter {
+      attribute gap {
+        xsd:string "false" | xsd:string "true" | xsd:string "unknown"
+      },
+      attribute delimiter {
+        xsd:string "sameTimeWindow" | xsd:string "acrossTimeWindows"
+      },
+      Extension*
+    }
+InstanceField =
+  notAllowed
+  | element InstanceField {
+      attribute column { xsd:string }?,
+      attribute field { xsd:string },
+      Extension*
+    }
+ParameterField =
+  notAllowed
+  | element ParameterField {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      }?,
+      attribute name { xsd:string }
+    }
+TextModelNormalization =
+  notAllowed
+  | element TextModelNormalization {
+      attribute documentNormalization {
+        xsd:string "cosine" | xsd:string "none"
+      }?,
+      attribute globalTermWeights {
+        xsd:string "GFIDF"
+        | xsd:string "normal"
+        | xsd:string "probabilisticInverse"
+        | xsd:string "none"
+        | xsd:string "inverseDocumentFrequency"
+      }?,
+      attribute localTermWeights {
+        xsd:string "binary"
+        | xsd:string "termFrequency"
+        | xsd:string "logarithmic"
+        | xsd:string "augmentedNormalizedTermFrequency"
+      }?,
+      Extension*
+    }
+NeuralInputs =
+  notAllowed
+  | element NeuralInputs {
+      attribute numberOfInputs { xsd:nonNegativeInteger }?,
+      Extension*,
+      NeuralInput+
+    }
+Characteristic =
+  notAllowed
+  | element Characteristic {
+      attribute baselineScore { xsd:double }?,
+      attribute reasonCode { xsd:string }?,
+      attribute name { xsd:string }?,
+      Extension*,
+      Attribute+
+    }
+ClusteringModelQuality =
+  notAllowed
+  | element ClusteringModelQuality {
+      attribute SSB { xsd:double }?,
+      attribute SSE { xsd:double }?,
+      attribute dataName { xsd:string }?
+    }
+CategoricalPredictor =
+  notAllowed
+  | element CategoricalPredictor {
+      attribute coefficient { xsd:double },
+      attribute value { xsd:string },
+      attribute name { xsd:string },
+      Extension*
+    }
+TimeSeries =
+  notAllowed
+  | element TimeSeries {
+      attribute interpolationMethod {
+        xsd:string "linear"
+        | xsd:string "none"
+        | xsd:string "cubicSpline"
+        | xsd:string "exponentialSpline"
+      }?,
+      attribute endTime { xsd:double }?,
+      attribute startTime { xsd:double }?,
+      attribute usage {
+        xsd:string "logical"
+        | xsd:string "original"
+        | xsd:string "prediction"
+      }?,
+      TimeAnchor?,
+      TimeValue*
+    }
+TimeValue =
+  notAllowed
+  | element TimeValue {
+      attribute standardError { xsd:double }?,
+      attribute value { xsd:double },
+      attribute time { xsd:double }?,
+      attribute index { xsd:integer }?,
+      Timestamp?
+    }
+TreeModel =
+  notAllowed
+  | element TreeModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute splitCharacteristic {
+        xsd:string "binarySplit" | xsd:string "multiSplit"
+      }?,
+      attribute noTrueChildStrategy {
+        xsd:string "returnNullPrediction"
+        | xsd:string "returnLastPrediction"
+      }?,
+      attribute missingValuePenalty { xsd:decimal }?,
+      attribute missingValueStrategy {
+        xsd:string "defaultChild"
+        | xsd:string "aggregateNodes"
+        | xsd:string "weightedConfidence"
+        | xsd:string "none"
+        | xsd:string "nullPrediction"
+        | xsd:string "lastPrediction"
+      }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      Node,
+      ModelVerification?,
+      Extension*
+    }
+LiftGraph =
+  notAllowed
+  | element LiftGraph {
+      Extension*,
+      XCoordinates,
+      YCoordinates,
+      BoundaryValues?,
+      BoundaryValueMeans?
+    }
+ItemRef =
+  notAllowed
+  | element ItemRef {
+      attribute itemRef { xsd:string },
+      Extension*
+    }
+MultivariateStats =
+  notAllowed
+  | element MultivariateStats {
+      attribute targetCategory { xsd:string }?,
+      Extension*,
+      MultivariateStat+
+    }
+NeuralNetwork =
+  notAllowed
+  | element NeuralNetwork {
+      attribute isScorable { xsd:boolean }?,
+      attribute numberOfLayers { xsd:nonNegativeInteger }?,
+      attribute altitude { xsd:double }?,
+      attribute width { xsd:double }?,
+      attribute threshold { xsd:double }?,
+      attribute normalizationMethod {
+        xsd:string "softmax"
+        | xsd:string "simplemax"
+        | xsd:string "none"
+      }?,
+      attribute activationFunction {
+        xsd:string "reciprocal"
+        | xsd:string "cosine"
+        | xsd:string "arctan"
+        | xsd:string "exponential"
+        | xsd:string "logistic"
+        | xsd:string "Gauss"
+        | xsd:string "threshold"
+        | xsd:string "tanh"
+        | xsd:string "identity"
+        | xsd:string "sine"
+        | xsd:string "Elliott"
+        | xsd:string "radialBasis"
+        | xsd:string "square"
+      },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      NeuralInputs,
+      NeuralLayer+,
+      NeuralOutputs?,
+      ModelVerification?,
+      Extension*
+    }
+OutputField =
+  notAllowed
+  | element OutputField {
+      attribute segmentId { xsd:string }?,
+      attribute isMultiValued { text }?,
+      attribute rankOrder {
+        xsd:string "ascending" | xsd:string "descending"
+      }?,
+      attribute rankBasis {
+        xsd:string "support"
+        | xsd:string "lift"
+        | xsd:string "leverage"
+        | xsd:string "confidence"
+        | xsd:string "affinity"
+      }?,
+      attribute rank { xsd:integer }?,
+      attribute algorithm {
+        xsd:string "ruleAssociation"
+        | xsd:string "recommendation"
+        | xsd:string "exclusiveRecommendation"
+      }?,
+      attribute ruleFeature {
+        xsd:string "antecedent"
+        | xsd:string "support"
+        | xsd:string "consequent"
+        | xsd:string "ruleId"
+        | xsd:string "rule"
+        | xsd:string "lift"
+        | xsd:string "leverage"
+        | xsd:string "confidence"
+        | xsd:string "affinity"
+      }?,
+      attribute value { xsd:string }?,
+      attribute feature {
+        xsd:string "antecedent"
+        | xsd:string "predictedValue"
+        | xsd:string "transformedValue"
+        | xsd:string "support"
+        | xsd:string "consequent"
+        | xsd:string "entityId"
+        | xsd:string "leverage"
+        | xsd:string "reasonCode"
+        | xsd:string "residual"
+        | xsd:string "confidence"
+        | xsd:string "decision"
+        | xsd:string "affinity"
+        | xsd:string "predictedDisplayValue"
+        | xsd:string "standardError"
+        | xsd:string "ruleValue"
+        | xsd:string "ruleId"
+        | xsd:string "rule"
+        | xsd:string "lift"
+        | xsd:string "probability"
+        | xsd:string "entityAffinity"
+        | xsd:string "clusterId"
+        | xsd:string "clusterAffinity"
+        | xsd:string "warning"
+      }?,
+      attribute targetField { xsd:string }?,
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      }?,
+      attribute displayName { xsd:string }?,
+      attribute name { xsd:string },
+      Extension*,
+      (Decisions?, EXPRESSION)?
+    }
+Partition =
+  notAllowed
+  | element Partition {
+      attribute size { xsd:double }?,
+      attribute name { xsd:string },
+      Extension*,
+      PartitionFieldStats*
+    }
+TargetValueStats =
+  notAllowed
+  | element TargetValueStats { Extension*, TargetValueStat+ }
+SimpleSetPredicate =
+  notAllowed
+  | element SimpleSetPredicate {
+      attribute booleanOperator {
+        xsd:string "isIn" | xsd:string "isNotIn"
+      },
+      attribute field { xsd:string },
+      Extension*,
+      Array
+    }
+Target =
+  notAllowed
+  | element Target {
+      attribute rescaleFactor { xsd:double }?,
+      attribute rescaleConstant { xsd:double }?,
+      attribute max { xsd:double }?,
+      attribute min { xsd:double }?,
+      attribute castInteger {
+        xsd:string "floor" | xsd:string "ceiling" | xsd:string "round"
+      }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      }?,
+      attribute field { xsd:string },
+      Extension*,
+      TargetValue*
+    }
+SupportVectorMachineModel =
+  notAllowed
+  | element SupportVectorMachineModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute classificationMethod {
+        xsd:string "OneAgainstOne" | xsd:string "OneAgainstAll"
+      }?,
+      attribute svmRepresentation {
+        xsd:string "SupportVectors" | xsd:string "Coefficients"
+      }?,
+      attribute threshold { xsd:double }?,
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      Targets?,
+      LocalTransformations?,
+      (LinearKernelType
+       | PolynomialKernelType
+       | RadialBasisKernelType
+       | SigmoidKernelType),
+      VectorDictionary,
+      SupportVectorMachine+,
+      ModelVerification?,
+      Extension*
+    }
+Constraints =
+  notAllowed
+  | element Constraints {
+      attribute maximumAntConsSeparationTime { xsd:double }?,
+      attribute minimumAntConsSeparationTime { xsd:double }?,
+      attribute maximumItemsetSeparationTime { xsd:double }?,
+      attribute minimumItemsetSeparationTime { xsd:double }?,
+      attribute maximumTotalSequenceTime { xsd:double }?,
+      attribute minimumTotalSequenceTime { xsd:double }?,
+      attribute minimumLift { xsd:double }?,
+      attribute minimumConfidence { xsd:double }?,
+      attribute minimumSupport { xsd:double }?,
+      attribute maximumNumberOfConsequentItems { xsd:integer }?,
+      attribute minimumNumberOfConsequentItems { xsd:integer }?,
+      attribute maximumNumberOfAntecedentItems { xsd:integer }?,
+      attribute minimumNumberOfAntecedentItems { xsd:integer }?,
+      attribute maximumNumberOfItems { xsd:integer }?,
+      attribute minimumNumberOfItems { xsd:integer }?,
+      Extension*
+    }
+Node =
+  notAllowed
+  | element Node {
+      attribute defaultChild { xsd:string }?,
+      attribute recordCount { xsd:double }?,
+      attribute score { xsd:string }?,
+      attribute id { xsd:string }?,
+      Extension*,
+      PREDICATE,
+      ((Partition?, ScoreDistribution*, Node*)
+       | (Extension*, (Regression | DecisionTree)))
+    }
+DocumentTermMatrix =
+  notAllowed
+  | element DocumentTermMatrix { Extension*, Matrix }
+FactorList =
+  notAllowed
+  | element FactorList { Extension*, Predictor* }
+NormalizedCountTable =
+  notAllowed
+  | element NormalizedCountTable { COUNT-TABLE-TYPE }
+Cluster =
+  notAllowed
+  | element Cluster {
+      attribute size { xsd:nonNegativeInteger }?,
+      attribute name { xsd:string }?,
+      attribute id { xsd:string }?,
+      Extension*,
+      KohonenMap?,
+      NUM-ARRAY?,
+      Partition?,
+      Covariances?
+    }
+MapValues =
+  notAllowed
+  | element MapValues {
+      attribute dataType {
+        xsd:string "dateTime"
+        | xsd:string "integer"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "date"
+        | xsd:string "double"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "float"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "time"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "timeSeconds"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "string"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "boolean"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      attribute outputColumn { xsd:string },
+      attribute defaultValue { xsd:string }?,
+      attribute mapMissingTo { xsd:string }?,
+      Extension*,
+      FieldColumnPair*,
+      (TableLocator | InlineTable)?
+    }
+BayesInput =
+  notAllowed
+  | element BayesInput {
+      attribute fieldName { xsd:string },
+      Extension*,
+      (TargetValueStats | (DerivedField?, PairCounts+))
+    }
+TimeException =
+  notAllowed
+  | element TimeException {
+      attribute count { xsd:integer }?,
+      attribute type { xsd:string "exclude" | xsd:string "include" }?,
+      INT-ARRAY
+    }
+LinearKernelType =
+  notAllowed
+  | element LinearKernelType {
+      attribute description { xsd:string }?,
+      Extension*
+    }
+TimeAnchor =
+  notAllowed
+  | element TimeAnchor {
+      attribute displayName { text }?,
+      attribute stepsize { xsd:integer }?,
+      attribute offset { xsd:integer }?,
+      attribute type {
+        xsd:string "dateTimeMillisecondsSince[0]"
+        | xsd:string "dateMonthsSince[1980]"
+        | xsd:string "dateMonthsSince[1970]"
+        | xsd:string "dateTimeSecondsSince[1960]"
+        | xsd:string "dateMonthsSince[0]"
+        | xsd:string "dateTimeSecondsSince[0]"
+        | xsd:string "dateYearsSince[0]"
+        | xsd:string "dateDaysSince[1970]"
+        | xsd:string "dateDaysSince[1980]"
+        | xsd:string "dateTimeMillisecondsSince[1980]"
+        | xsd:string "dateTimeSecondsSince[1970]"
+        | xsd:string "dateTimeMillisecondsSince[1970]"
+        | xsd:string "dateDaysSince[1960]"
+        | xsd:string "dateMonthsSince[1960]"
+        | xsd:string "dateDaysSince[0]"
+        | xsd:string "dateTimeMillisecondsSince[1960]"
+        | xsd:string "dateTimeSecondsSince[1980]"
+      }?,
+      TimeCycle*,
+      (TimeException, TimeException?)?
+    }
+MiningField =
+  notAllowed
+  | element MiningField {
+      attribute invalidValueTreatment {
+        xsd:string "returnInvalid"
+        | xsd:string "asMissing"
+        | xsd:string "asIs"
+      }?,
+      attribute missingValueTreatment {
+        xsd:string "asMedian"
+        | xsd:string "asValue"
+        | xsd:string "asMean"
+        | xsd:string "asIs"
+        | xsd:string "asMode"
+      }?,
+      attribute missingValueReplacement { xsd:string }?,
+      attribute highValue { xsd:double }?,
+      attribute lowValue { xsd:double }?,
+      attribute outliers {
+        xsd:string "asMissingValues"
+        | xsd:string "asIs"
+        | xsd:string "asExtremeValues"
+      }?,
+      attribute importance { xsd:decimal }?,
+      attribute optype {
+        xsd:string "continuous"
+        | xsd:string "categorical"
+        | xsd:string "ordinal"
+      }?,
+      attribute usageType {
+        xsd:string "analysisWeight"
+        | xsd:string "order"
+        | xsd:string "frequencyWeight"
+        | xsd:string "target"
+        | xsd:string "predicted"
+        | xsd:string "active"
+        | xsd:string "group"
+        | xsd:string "supplementary"
+      }?,
+      attribute name { xsd:string },
+      Extension*
+    }
+SequenceRule =
+  notAllowed
+  | element SequenceRule {
+      attribute lift { xsd:double }?,
+      attribute confidence { xsd:double },
+      attribute support { xsd:double },
+      attribute occurrence { xsd:integer },
+      attribute numberOfSets { xsd:integer },
+      attribute id { xsd:string },
+      Extension*,
+      AntecedentSequence,
+      Delimiter,
+      Time?,
+      ConsequentSequence,
+      Time?
+    }
+TimeCycle =
+  notAllowed
+  | element TimeCycle {
+      attribute displayName { text }?,
+      attribute type {
+        xsd:string "excludeFromTo"
+        | xsd:string "includeFromTo"
+        | xsd:string "excludeSet"
+        | xsd:string "includeSet"
+        | xsd:string "includeAll"
+      }?,
+      attribute length { xsd:integer }?,
+      INT-ARRAY?
+    }
+euclidean =
+  notAllowed
+  | element euclidean { Extension* }
+binarySimilarity =
+  notAllowed
+  | element binarySimilarity {
+      attribute d11-parameter { xsd:double },
+      attribute d10-parameter { xsd:double },
+      attribute d01-parameter { xsd:double },
+      attribute d00-parameter { xsd:double },
+      attribute c11-parameter { xsd:double },
+      attribute c10-parameter { xsd:double },
+      attribute c01-parameter { xsd:double },
+      attribute c00-parameter { xsd:double },
+      Extension*
+    }
+Output =
+  notAllowed
+  | element Output { Extension*, OutputField+ }
+TargetValue =
+  notAllowed
+  | element TargetValue {
+      attribute defaultValue { xsd:double }?,
+      attribute priorProbability { xsd:decimal }?,
+      attribute displayValue { xsd:string }?,
+      attribute value { xsd:string }?,
+      Extension*,
+      Partition?
+    }
+ModelVerification =
+  notAllowed
+  | element ModelVerification {
+      attribute fieldCount { xsd:integer }?,
+      attribute recordCount { xsd:integer }?,
+      Extension*,
+      VerificationFields,
+      InlineTable
+    }
+VectorDictionary =
+  notAllowed
+  | element VectorDictionary {
+      attribute numberOfVectors { xsd:integer }?,
+      Extension*,
+      VectorFields,
+      VectorInstance*
+    }
+Targets =
+  notAllowed
+  | element Targets { Extension*, Target+ }
+ClassLabels =
+  notAllowed
+  | element ClassLabels { Extension*, STRING-ARRAY }
+BaseCumHazardTables =
+  notAllowed
+  | element BaseCumHazardTables {
+      attribute maxTime { xsd:double }?,
+      Extension*,
+      (BaselineStratum+ | BaselineCell+)
+    }
+TargetValueStat =
+  notAllowed
+  | element TargetValueStat {
+      attribute value { xsd:string },
+      Extension*,
+      CONTINUOUS-DISTRIBUTION-TYPES
+    }
+Categories =
+  notAllowed
+  | element Categories { Extension*, Category+ }
+InstanceFields =
+  notAllowed
+  | element InstanceFields { Extension*, InstanceField+ }
+FrequenciesType = NUM-ARRAY, (NUM-ARRAY, NUM-ARRAY?)?
+MODEL-ELEMENT =
+  AssociationModel
+  | BaselineModel
+  | ClusteringModel
+  | GeneralRegressionModel
+  | MiningModel
+  | NaiveBayesModel
+  | NearestNeighborModel
+  | NeuralNetwork
+  | RegressionModel
+  | RuleSetModel
+  | SequenceModel
+  | Scorecard
+  | SupportVectorMachineModel
+  | TextModel
+  | TimeSeriesModel
+  | TreeModel
+Seasonality_ExpoSmooth =
+  notAllowed
+  | element Seasonality_ExpoSmooth {
+      attribute delta { xsd:double }?,
+      attribute phase { xsd:integer }?,
+      attribute unit { xsd:string }?,
+      attribute period { xsd:integer },
+      attribute type {
+        xsd:NMTOKEN "multiplicative" | xsd:NMTOKEN "additive"
+      },
+      REAL-ARRAY
+    }
+TextDocument =
+  notAllowed
+  | element TextDocument {
+      attribute file { xsd:string }?,
+      attribute length { xsd:integer }?,
+      attribute name { xsd:string }?,
+      attribute id { xsd:string },
+      Extension*
+    }
+ParamMatrix =
+  notAllowed
+  | element ParamMatrix { Extension*, PCell* }
+CorrelationValues =
+  notAllowed
+  | element CorrelationValues { Extension*, Matrix }
+SimplePredicate =
+  notAllowed
+  | element SimplePredicate {
+      attribute value { xsd:string }?,
+      attribute operator {
+        xsd:string "lessThan"
+        | xsd:string "greaterThan"
+        | xsd:string "isMissing"
+        | xsd:string "equal"
+        | xsd:string "notEqual"
+        | xsd:string "lessOrEqual"
+        | xsd:string "isNotMissing"
+        | xsd:string "greaterOrEqual"
+      },
+      attribute field { xsd:string },
+      Extension*
+    }
+TextModelSimiliarity =
+  notAllowed
+  | element TextModelSimiliarity {
+      attribute similarityType {
+        xsd:string "cosine" | xsd:string "euclidean"
+      }?,
+      Extension*
+    }
+Value =
+  notAllowed
+  | element Value {
+      attribute property {
+        xsd:string "missing" | xsd:string "valid" | xsd:string "invalid"
+      }?,
+      attribute displayValue { xsd:string }?,
+      attribute value { xsd:string },
+      Extension*
+    }
+Correlations =
+  notAllowed
+  | element Correlations {
+      Extension*,
+      CorrelationFields,
+      CorrelationValues,
+      CorrelationMethods?
+    }
+PartitionFieldStats =
+  notAllowed
+  | element PartitionFieldStats {
+      attribute weighted { xsd:string "1" | xsd:string "0" }?,
+      attribute field { xsd:string },
+      Extension*,
+      Counts?,
+      NumericInfo?,
+      FrequenciesType?
+    }
+NormDiscrete =
+  notAllowed
+  | element NormDiscrete {
+      attribute mapMissingTo { xsd:double }?,
+      attribute value { xsd:string },
+      attribute method { xsd:string "indicator" }?,
+      attribute field { xsd:string },
+      Extension*
+    }
+BaselineStratum =
+  notAllowed
+  | element BaselineStratum {
+      attribute maxTime { xsd:double },
+      attribute label { xsd:string }?,
+      attribute value { xsd:string },
+      Extension*,
+      BaselineCell*
+    }
+YCoordinates =
+  notAllowed
+  | element YCoordinates { Extension*, NUM-ARRAY }
+NumericInfo =
+  notAllowed
+  | element NumericInfo {
+      attribute interQuartileRange { xsd:double }?,
+      attribute median { xsd:double }?,
+      attribute standardDeviation { xsd:double }?,
+      attribute mean { xsd:double }?,
+      attribute maximum { xsd:double }?,
+      attribute minimum { xsd:double }?,
+      Extension*,
+      Quantile*
+    }
+ClusteringModel =
+  notAllowed
+  | element ClusteringModel {
+      attribute isScorable { xsd:boolean }?,
+      attribute numberOfClusters { xsd:integer },
+      attribute modelClass {
+        xsd:string "distributionBased" | xsd:string "centerBased"
+      },
+      attribute algorithmName { xsd:string }?,
+      attribute functionName {
+        xsd:string "timeSeries"
+        | xsd:string "classification"
+        | xsd:string "sequences"
+        | xsd:string "mixed"
+        | xsd:string "regression"
+        | xsd:string "associationRules"
+        | xsd:string "clustering"
+      },
+      attribute modelName { xsd:string }?,
+      Extension*,
+      MiningSchema,
+      Output?,
+      ModelStats?,
+      ModelExplanation?,
+      LocalTransformations?,
+      ComparisonMeasure,
+      ClusteringField+,
+      MissingValueWeights?,
+      Cluster+,
+      ModelVerification?,
+      Extension*
+    }
+PPMatrix =
+  notAllowed
+  | element PPMatrix { Extension*, PPCell* }
+Rule = SimpleRule | CompoundRule
+EXPRESSION =
+  Constant
+  | FieldRef
+  | NormContinuous
+  | NormDiscrete
+  | Discretize
+  | MapValues
+  | TextIndex
+  | Apply
+  | Aggregate
+TextIndexNormalization =
+  notAllowed
+  | element TextIndexNormalization {
+      attribute tokenize { xsd:boolean }?,
+      attribute wordSeparatorCharacterRE { xsd:string }?,
+      attribute maxLevenshteinDistance { xsd:integer }?,
+      attribute isCaseSensitive { xsd:boolean }?,
+      attribute recursive { xsd:boolean }?,
+      attribute regexField { xsd:string }?,
+      attribute outField { xsd:string }?,
+      attribute inField { xsd:string }?,
+      Extension*,
+      (TableLocator | InlineTable)?
+    }
+PCovCell =
+  notAllowed
+  | element PCovCell {
+      attribute targetCategory { xsd:string }?,
+      attribute value { xsd:double },
+      attribute tCol { xsd:string }?,
+      attribute tRow { xsd:string }?,
+      attribute pCol { xsd:string },
+      attribute pRow { xsd:string },
+      Extension*
+    }

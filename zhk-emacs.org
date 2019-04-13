@@ -1,0 +1,1950 @@
+#+TITLE: Zhang Kai's Emacs Configuration
+#+OPTIONS: toc:4 h:4
+
+ref: [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide]]
+* Configuration
+With the power of org-mode, I attempt configure emacs as a literate program. 
+I save this as =zhk-emacs.org= in my =~/.emacs.d= directory to have it automatically load.
+You could load it with =~(org-babel-load-file "/path/to/file")=, 
+changing the path appropriately, but you'll probably want to tweak it extensively first.
+
+** preprocess solve windows compatiablity
+#+BEGIN_SRC emacs-lisp
+  (defconst --batch-mode 
+    (or noninteractive (member "--batch-mode" command-line-args))
+    "True when running in batch-mode (--batch-mode command-line switch set).")
+
+  (unless --batch-mode
+    (require 'server)
+    (when (and (>= emacs-major-version 23)
+               (or (equal system-type 'cygwin)
+                   (equal window-system 'w32)))
+      ;; Suppress error "directory ~/.emacs.d/server is unsafe" on Windows.
+      (defun server-ensure-safe-dir (dir) "Noop" t))
+    (condition-case nil
+        (server-start)
+      (error
+       (let* ((server-dir (if server-use-tcp server-auth-dir server-socket-dir)))
+         (when (and server-use-tcp
+                    (not (file-accessible-directory-p server-dir)))
+           (display-warning 'server (format "Creating %S" server-dir) :warning)
+           (make-directory server-dir t)
+           (server-start))))))
+
+  (setq max-specpdl-size 64000)
+  (setq max-lisp-eval-depth 2048) ;; default 500
+  (setq gc-cons-threshold (* 128 1024 1024))
+#+END_SRC
+
+** Set up Environment
+ref: [[http://www.mygooglest.com/fni/dot-emacs.html]]
+#+BEGIN_SRC emacs-lisp
+  ;; OS type --- are we running GNU Linux?
+  (defmacro GNULinux (&rest body)
+    (list 'if (string-match "linux" (prin1-to-string system-type))
+          (cons 'progn body)))
+  
+  (defmacro Windows (&rest body)
+    (list 'if (equal system-type 'windows-nt)
+          (cons 'progn body)))
+  
+  (defmacro Cygwin (&rest body)
+    (list 'if (equal system-type 'cygwin)
+          (cons 'progn body)))
+  
+  (defmacro XLaunch (&rest body)
+    (list 'if (eq window-system 'x) (cons 'progn body)))
+  
+  ;; Emacs type --- are we running GNU Emacs?
+  (defmacro GNUEmacs (&rest body)
+    "Execute any number of forms if running under GNU Emacs."
+    (list 'if (string-match "GNU Emacs" (version))
+          (cons 'progn body)))
+  
+  (defmacro GNUEmacs23 (&rest body)
+    (list 'if (string-match "GNU Emacs 23" (version))
+          (cons 'progn body)))
+  
+  (defmacro GNUEmacs22 (&rest body)
+    (list 'if (string-match "GNU Emacs 22" (version))
+          (cons 'progn body)))
+  
+  (defmacro XEmacs (&rest body)
+    "Execute any number of forms if running under XEmacs."
+    (list 'if (string-match "XEmacs" (version))
+          (cons 'progn body)))
+  #+END_SRC
+
+** Set up Proxy
+ref: [[http://stackoverflow.com/questions/1595418/emacs-behind-http-proxy]]
+#+BEGIN_SRC emacs-lisp
+  ;; (setq url-proxy-services
+  ;;       '(("no_proxy" . "^\\(localhost\\|10.*\\)")
+  ;;         ("http" . "127.0.0.1:7171")
+  ;;         ("https" . "127.0.0.1:7171")))
+
+  ;; (setq url-http-proxy-basic-auth-storage
+  ;;       (list (list "proxy.com:8080"
+  ;;                   (cons "Input your LDAP UID !"
+  ;;                         (base64-encode-string "LOGIN:PASSWORD")))))
+#+END_SRC
+** for mac
+#+BEGIN_SRC emacs-lisp
+  (when (eq system-type 'darwin)
+    (setq mac-option-modifier 'meta)
+    (setq mac-command-modifier nil))
+#+END_SRC
+** Emacs initialization
+*** make loaded files give a message
+#+BEGIN_SRC emacs-lisp
+  ;; make loaded files give a message
+  (GNUEmacs
+   (defadvice load (before debug-log activate)
+     (message "Loading %s..." (locate-library (ad-get-arg 0)))))
+#+END_SRC
+*** enhance load-path function
+ref:[[http://www.mygooglest.com/fni/dot-emacs.html]]
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/add-to-load-path (this-directory &optional with-subdirs recursive)
+    "Add THIS-DIRECTORY at the beginning of the load-path, if it exists.
+  Add all its subdirectories not starting with a '.' if the
+  optional argument WITH-SUBDIRS is not nil.
+  Do it recursively if the third argument is not nil."
+    (when (and this-directory
+               (file-directory-p this-directory))
+      (let* ((this-directory (expand-file-name this-directory))
+             (files (directory-files this-directory t "^[^\\.]")))
+  
+        ;; completely canonicalize the directory name (*may not* begin with `~')
+        (while (not (string= this-directory (expand-file-name this-directory)))
+          (setq this-directory (expand-file-name this-directory)))
+  
+        (message "Adding `%s' to load-path..." this-directory)
+        (add-to-list 'load-path this-directory)
+  
+        (when with-subdirs
+          (while files
+            (setq dir-or-file (car files))
+            (when (file-directory-p dir-or-file)
+              (if recursive
+                  (zhk/add-to-load-path dir-or-file 'with-subdirs 'recursive)
+                (zhk/add-to-load-path dir-or-file)))
+            (setq files (cdr files)))))))
+  ;; Use `M-x list-load-path-shadows RET' to display a list of external Emacs
+  ;; Lisp files that shadow Emacs builtins (listing potential load path
+  ;; problems).
+#+END_SRC
+
+*** configure package-archives
+#+BEGIN_SRC emacs-lisp
+  (require 'package)
+
+  (setq package-archives
+          '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+            ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
+
+  (setq package-enable-at-startup nil)
+  (package-initialize)
+  (package-refresh-contents)
+#+END_SRC
+
+*** Install Basic Package
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/package-install (package &optional repository)
+    "Install PACKAGE if it has not yet been installed.
+  If REPOSITORY is specified, use that."
+    (unless (package-installed-p package)
+      (let ((package-archives (if repository
+                                  (list (assoc repository package-archives))
+                                package-archives)))
+        (package-install package))))
+
+  (zhk/package-install 's)
+  (zhk/package-install 'dash)
+  (zhk/package-install 'ht)
+  (zhk/package-install 'f)
+  (zhk/package-install 'loop)
+  (zhk/package-install 'use-package)
+  (zhk/package-install 'bind-key)
+  (zhk/package-install 'el-get)
+  (require 'use-package)
+  (setq use-package-verbose t)
+  ;; Validation of setq and stuff
+  (use-package validate
+    :ensure t)
+
+#+END_SRC
+*** set up encoding system
+#+BEGIN_SRC emacs-lisp
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+
+*** configure default behavior
+**** hide startup message
+#+BEGIN_SRC emacs-lisp
+  (setq inhibit-startup-message t)        ;关闭开启画面
+#+END_SRC
+**** enable delete-region-mode
+#+BEGIN_SRC emacs-lisp
+  (delete-selection-mode 1)
+#+END_SRC
+**** turn on font-lock
+#+BEGIN_SRC emacs-lisp
+  (global-font-lock-mode t)  ;语法高亮
+#+END_SRC
+**** short =yes-or-no-p=
+#+BEGIN_SRC emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)           ;以y/n代表 yes/no
+  ;; (defalias 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+**** show trailing whitespaces
+#+BEGIN_SRC emacs-lisp
+  (if (>= emacs-major-version 21)
+      (setq show-trailing-whitespace t))
+#+END_SRC
+**** show parenthes 
+#+BEGIN_SRC emacs-lisp
+  (show-paren-mode t)                     ;显示括号匹配
+  (setq show-paren-style 'parentheses)    ;显示括号匹配时，不跳转
+#+END_SRC
+**** remove scroll bar
+#+BEGIN_SRC emacs-lisp
+  ;; 去掉滚动条
+  (when (fboundp 'set-scroll-bar-mode)
+    (set-scroll-bar-mode nil))
+#+END_SRC
+**** remove tool bar
+#+BEGIN_SRC emacs-lisp
+  ;; 去掉工具栏
+  (when (fboundp 'tool-bar-mode)
+    (tool-bar-mode -1))
+#+END_SRC
+**** remove menu bar (current:turn off)
+#+BEGIN_SRC emacs-lisp
+  ;; 去掉菜单栏
+  (GNULinux
+   (when (fboundp 'menu-bar-mode)
+     (menu-bar-mode -1)))
+#+END_SRC
+**** show image file
+#+BEGIN_SRC emacs-lisp
+  ;; 显示图片
+  (when (fboundp 'auto-image-file-mode)
+   (auto-image-file-mode t))
+#+END_SRC
+**** configure column related stuff
+#+BEGIN_SRC emacs-lisp
+  (setq column-number-mode t)             ;显示列号 the other way
+  ;; (setq line-number-mode t)               ;显示行号
+  (setq default-fill-column 80)           ;默认显示 80列就换行
+  (setq-default fill-column 80)
+#+END_SRC
+**** enable uniquify
+The library uniquify overrides Emacs’ default mechanism 
+for making buffer names unique (using suffixes like <2>, 
+<3> etc.) with a more sensible behaviour which use parts 
+of the file names to make the buffer names distinguishable.
+#+BEGIN_SRC emacs-lisp
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'post-forward)
+  (setq uniquify-after-kill-buffer-p t) ; rename after killing uniquified
+  (setq uniquify-ignore-buffers-re "^\\*") ; don't muck with special buffers
+#+END_SRC
+**** Don't clutter up directories with files~
+Rather than saving backup files scattered all over the file system,
+let them live in the =.emacs.d/backups= directory inside of the starter kit.
+emacs中，改变文件时，默认都会产生备份文件（以~结尾的文件）。可以完全去掉
+（并不可取），也可以制定备份的方式。这里采用的是，把所有的文件备份都放在一个
+固定的地方。对于每个备份文件，保留最原始的两个版本和最新的五个版本。
+并且备份的时候，备份文件是复件，而不是原件。
+#+BEGIN_SRC emacs-lisp
+  (setq version-control t)
+  (setq kept-old-versions 2)
+  (setq kept-new-versions 5)
+  (setq delete-old-versions t)
+  (setq backup-by-copying t)
+  (setq zhk/backup-dir (expand-file-name ".backups" zhk-top-dir))
+  (if (not (file-exists-p zhk/backup-dir))
+      (make-directory zhk/backup-dir))
+  (setq backup-directory-alist `((".*" . ,zhk/backup-dir)))
+#+END_SRC
+
+**** set up hippie-expand
+hippie-expand会优先使用表最前面的函数来补全。
+这是说，首先使用当前的buffer补全，如果找不到，就到别的可见的窗口里寻找，
+如果还找不到，那么到所有打开的buffer去找，如果还……那么到kill-ring里，
+到文件名，到简称列表里，到list......当前使用的匹配方式会在echo区域显示。
+特别有意思的是try-expand-line，它可以帮你补全整整一行文字。我很多时候有
+两行文字大致相同，只有几个字不一样，但是我懒得去copy paste一下。那么我就
+输入这行文字的前面几个字。然后多按几下M-/就能得到那一行。
+#+BEGIN_SRC emacs-lisp
+  ;;(global-set-key [(meta ?/)] 'hippie-expand)
+  (bind-key "M-/" 'hippie-expand)
+  (setq hippie-expand-try-functions-list
+        '(try-expand-line
+          try-expand-line-all-buffers
+          try-expand-list
+          try-expand-list-all-buffers
+          try-expand-dabbrev
+          try-expand-dabbrev-visible
+          try-expand-dabbrev-all-buffers
+          try-expand-dabbrev-from-kill
+          try-complete-file-name
+          try-complete-file-name-partially
+          try-complete-lisp-symbol
+          try-complete-lisp-symbol-partially
+          try-expand-whole-kill))
+#+END_SRC
+**** enhance shell-mode
+#+BEGIN_SRC emacs-lisp
+  ;; (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
+  ;; comint install
+  (use-package xterm-color
+    :config (progn
+              (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+              (setq comint-output-filter-functions
+                    (remove 'ansi-color-process-output comint-output-filter-functions))
+              (require 'eshell)
+              (add-hook 'eshell-mode-hook
+                        (lambda ()
+                          (setq xterm-color-preserve-properties t)))
+              (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+              (setq eshell-output-filter-functions
+                    (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+              )
+    )
+
+  ;; which makes shell command always start a new shell.
+  ;; by Ellen Taylor, 2012-07-20
+  (defadvice shell (around always-new-shell)
+    "Always start a new shell."
+    (let ((buffer (generate-new-buffer-name "*shell*"))) ad-do-it))
+  (ad-activate 'shell)
+#+END_SRC
+**** TODO try iswitchb-mode
+#+BEGIN_SRC emacs-lisp
+  (iswitchb-mode 1)
+  (add-to-list 'iswitchb-buffer-ignore "^[ \t]*\\*")
+#+END_SRC
+***** ignore all =dired-mode= buffer
+ref: [[http://stackoverflow.com/questions/12406774/iswitchb-ignore-dired-buffer]]
+
+#+BEGIN_SRC emacs-lisp
+  (defun iswitchb-ignore-dired-buffers (buffer)
+    "Ignore all dired mode buffers."
+    (with-current-buffer buffer
+      (eq major-mode 'dired-mode)))
+  
+  (add-to-list 'iswitchb-buffer-ignore 'iswitchb-ignore-dired-buffers)
+#+END_SRC
+***** Using the arrow keys to select a buffer
+The default key bindings to select a buffer might annoy some. Even more annoying is the fact that the left/right keys don’t work, and the up/down keys unhelpfully bring up old iswitchb lists which might even be out of date. With that in mind:
+#+BEGIN_SRC emacs-lisp
+  (require 'edmacro)
+  (defun iswitchb-local-keys ()
+    (mapc (lambda (K) 
+            (let* ((key (car K)) (fun (cdr K)))
+              (define-key iswitchb-mode-map (edmacro-parse-keys key) fun)))
+          '(("<right>" . iswitchb-next-match)
+            ("<left>"  . iswitchb-prev-match)
+            ("<up>"    . ignore             )
+            ("<down>"  . ignore             ))))
+  (add-hook 'iswitchb-define-mode-map-hook 'iswitchb-local-keys)
+#+END_SRC
+***** fixed IswitchBuffers and Uniquify compatiable
+ref:[[http://www.emacswiki.org/emacs/IswitchBuffers]]
+#+BEGIN_SRC emacs-lisp
+  (defadvice iswitchb-kill-buffer (after rescan-after-kill activate)
+    "*Regenerate the list of matching buffer names after a kill.
+      Necessary if using `uniquify' with `uniquify-after-kill-buffer-p'
+      set to non-nil."
+    (setq iswitchb-buflist iswitchb-matches)
+    (iswitchb-rescan))
+  (defun iswitchb-rescan ()
+    "*Regenerate the list of matching buffer names."
+    (interactive)
+    (iswitchb-make-buflist iswitchb-default)
+    (setq iswitchb-rescan t))
+#+END_SRC
+**** others
+#+BEGIN_SRC emacs-lisp
+  (setq enable-recursive-minibuffers  t)  ; 递归 minibuffer
+
+  (setq frame-title-format "zhk@%b")      ;在标题栏提示你目前在什么位置
+
+  (set-default 'indent-tabs-mode nil)
+  ;; (setq make-backup-files nil)            ;不产生备份文件
+  ;; (icomplete-mode 1) ;; 用M-x执行某个命令的时候，在输入的同时给出可选的命令名提示
+
+  ;; 把这些缺省禁用的功能打开。 
+  (put 'set-goal-column 'disabled nil)
+  (put 'narrow-to-region 'disabled nil)
+  (put 'upcase-region 'disabled nil)
+  (put 'downcase-region 'disabled nil)
+
+  (setq echo-keystrokes 0.1) ; 默认是1
+
+  (setq display-time-format "%Y-%m-%d %a %H:%M:%S")
+  (display-time-mode t)
+#+END_SRC
+
+*** fixed hangs under windows
+ref: [[http://stackoverflow.com/questions/8837712/emacs-creates-buffers-very-slowly]]
+ref: [[http://zzamboni.org/blog/solving-hangs-in-emacs-on-windows/]]
+ref: [[http://stackoverflow.com/questions/2007329/emacs-23-1-50-1-hangs-ramdomly-for-6-8-seconds-on-windows-xp]]
+#+BEGIN_SRC emacs-lisp
+  (when (or (equal system-type 'windows-nt)
+            (equal system-type 'cygwin))
+    (setq w32-get-true-file-attributes nil)
+    (global-auto-revert-mode -1))
+#+END_SRC
+
+** General Configuration
+*** fixed chinese display error under windows
+#+BEGIN_SRC emacs-lisp
+  (when (equal system-type 'windows-nt)
+    (set-default buffer-file-coding-system 'utf-8-unix)
+    (set-default-coding-systems 'utf-8-unix)
+    (setq-default pathname-coding-system 'euc-cn)
+    (setq file-name-coding-system 'euc-cn))
+#+END_SRC
+*** set visible-bell : make emacs flash instead of beep.
+#+BEGIN_SRC emacs-lisp
+  (setq visible-bell t)
+#+END_SRC
+*** customize color-theme
+ref:[[http://batsov.com/articles/2012/02/19/color-theming-in-emacs-reloaded/][very useful emacs24 color-theme]]
+#+BEGIN_SRC emacs-lisp
+  (load-theme 'wombat t)
+  (zhk/package-install 'zenburn-theme)
+  (zhk/package-install 'solarized-theme)
+  (zhk/package-install 'color-theme-sanityinc-tomorrow)
+  (zhk/package-install 'color-theme-sanityinc-solarized)
+  (zhk/package-install 'color-theme-solarized)
+  ;;; (zhk/package-install 'colorsarenice-theme)
+#+END_SRC
+*** enable copy with outside application
+支持emacs和外部程序的粘(ubuntu)
+#+BEGIN_SRC emacs-lisp
+    (when (fboundp 'x-select-enable-clipboard)
+      (setq x-select-enable-clipboard t
+            x-select-enable-primary t
+            save-interprogram-paste-before-kill t))
+#+END_SRC
+
+*** enlarge kill-ring
+用一个很大的 =kill ring=. 这样防止我不小心删掉重要的东西。我很努莽的，你知道 :P 
+#+BEGIN_SRC emacs-lisp
+  (setq kill-ring-max 256)
+#+END_SRC
+
+*** mouse avoidance mode
+=exile=, mouse will return origin position.
+#+BEGIN_SRC emacs-lisp
+  (mouse-avoidance-mode 'exile)
+  ;;; under exile mode, when point go out region, mouse will return origin position.
+  (setq mouse-avoidance-threshold 10) ; when point enter this region, mouse avoid
+#+END_SRC
+*** smart copy one line. redefine =M+k=
+#+BEGIN_SRC emacs-lisp
+  ;; Smart copy, if no region active, it simply copy the current whole line
+  (defadvice kill-line (before check-position activate)
+    (if (member major-mode
+                '(emacs-lisp-mode scheme-mode lisp-mode
+                                  c-mode c++-mode objc-mode js-mode
+                                  latex-mode plain-tex-mode))
+        (if (and (eolp) (not (bolp)))
+            (progn (forward-char 1)
+                   (just-one-space 0)
+                   (backward-char 1)))))
+  
+  (defadvice kill-ring-save (before slick-copy activate compile)
+    "When called interactively with no active region, copy a single line instead."
+    (interactive (if mark-active (list (region-beginning) (region-end))
+                   (message "Copied line")
+                   (list (line-beginning-position)
+                         (line-beginning-position 2)))))
+  
+  (defadvice kill-region (before slick-cut activate compile)
+    "When called interactively with no active region, kill a single line instead."
+    (interactive
+     (if mark-active (list (region-beginning) (region-end))
+       (list (line-beginning-position)
+             (line-beginning-position 2)))))
+  
+  ;; Copy line from point to the end, exclude the line break
+  (defun qiang-copy-line (arg)
+    "Copy lines (as many as prefix argument) in the kill ring"
+    (interactive "p")
+    (kill-ring-save (point)
+                    (line-end-position))
+    ;; (line-beginning-position (+ 1 arg)))
+    (message "%d line%s copied" arg (if (= 1 arg) "" "s")))
+  
+  (global-set-key (kbd "M-k") 'qiang-copy-line)
+#+END_SRC
+*** set up fonts =Monaco=
+#+BEGIN_SRC emacs-lisp
+  ;; (when (or (eq window-system 'x)
+  ;;           (eq window-system 'w32))
+  ;;   (use-package chinese-fonts-setup
+  ;;     :ensure t
+  ;;     :config (chinese-fonts-setup-enable)))
+#+END_SRC
+*** automatic regonize chinese coding
+#+BEGIN_SRC emacs-lisp
+  ;; 使用 C-h C 命令, 可以查看当前文档使用的编码以及 emacs 自动识别编码的优先级.
+  ;; (prefer-coding-system 'gb18030)
+  ;; (prefer-coding-system 'utf-8)
+  ;; 另外建议按下面的先后顺序来设置中文编码识别方式。
+  ;; 重要提示:写在最后一行的，实际上最优先使用; 最前面一行，反而放到最后才识别。
+  ;; utf-16le-with-signature 相当于 Windows 下的 Unicode 编码，这里也可写成
+  ;; utf-16 (utf-16 实际上还细分为 utf-16le, utf-16be, utf-16le-with-signature等多种)
+  (prefer-coding-system 'cp950)
+  (prefer-coding-system 'gb2312)
+  (prefer-coding-system 'cp936)
+  (prefer-coding-system 'gb18030)
+  ;(prefer-coding-system 'utf-16le-with-signature)
+  (prefer-coding-system 'utf-16)
+  ;; 新建文件使用utf-8-unix方式
+  ;; 如果不写下面两句，只写
+  ;; (prefer-coding-system 'utf-8)
+  ;; 这一句的话，新建文件以utf-8编码，行末结束符平台相关
+  (prefer-coding-system 'utf-8-dos)
+  (prefer-coding-system 'utf-8-unix)
+  ;; 编码设置 end
+#+END_SRC
+*** key bindings
+**** redefine C-a
+=C-a= 如果已经是最左，那么再按一次将跳到首个字符开始处
+#+BEGIN_SRC emacs-lisp
+  (defun lynnux-c-a (arg)
+    (interactive "^p")
+    (if (equal (current-column) 0)
+        (skip-chars-forward " \t")
+      (move-beginning-of-line arg))
+    )
+  (bind-key "C-a" 'lynnux-c-a)
+  ;;(global-set-key (kbd "C-a") 'lynnux-c-a)
+#+END_SRC
+
+**** refine =Ctrl+t= to =set-mark-command=
+C-t 设置标记，原键用c-x t代替，用colemak后，t在食指太容易按到
+#+BEGIN_SRC emacs-lisp
+  ;;(global-set-key (kbd "C-t") 'set-mark-command)
+  ;;(global-set-key (kbd "\C-xt") 'transpose-chars)
+  (bind-key "C-t" 'set-mark-command)
+  (bind-key "\C-xt" 'transpose-chars)
+#+END_SRC
+
+**** enable =ibuffer=
+启用=ibuffer=支持，增强=*buffer*=
+#+BEGIN_SRC emacs-lisp
+  (require 'ibuffer)
+  ;;(global-set-key (kbd "C-x C-b") 'ibuffer)
+  (bind-key "C-x C-b" 'ibuffer)
+#+END_SRC
+
+**** when press =ENTER=
+#+BEGIN_SRC emacs-lisp
+  ;;(global-set-key (kbd "RET") 'newline-and-indent)
+  (bind-key "RET" 'newline-and-indent)
+#+END_SRC
+
+*** disable =ido-mode=
+=Ido= is part of Emacs, starting with release 22.
+#+BEGIN_SRC emacs-lisp
+  ;; (when (> emacs-major-version 21)
+  ;;   (ido-mode t)
+  ;;   (setq ido-save-directory-list-file (expand-file-name ".ido_last" zhk-top-dir)
+  ;;         ido-max-directory-size 100000
+  ;;         ido-everywhere t     ;禁用ido everyting, 拷贝操作不方便
+  ;;         ido-enable-prefix nil
+  ;;         ido-enable-flex-matching t
+  ;;         ido-create-new-buffer 'always
+  ;;         ido-use-filename-at-point nil   ;; turn off, so annoying
+  ;;         ido-default-file-method 'select-window
+  ;;         ido-max-prospects 10))
+#+END_SRC
+*** Configure Helm
+ref: [[http://tuhdo.github.io/helm-intro.html][helm-tutorial]]
+#+BEGIN_SRC emacs-lisp
+  (use-package helm
+    :ensure t
+    :diminish helm-mode
+    :config (progn
+              (mapcar #'(lambda (package) (unless (package-installed-p package) (package-install package)))
+                      '(helm-swoop helm-flx helm-fuzzier smex helm-smex))
+              (use-package helm-ido-like
+                :load-path "site-lisp"
+                :config (progn
+                          (helm-ido-like)))
+              ;; (require 'helm-config)
+              ;; (helm-mode +1)
+              ;; (setq helm-buffers-fuzzy-matching t
+              ;;       helm-recentf-fuzzy-match    t
+              ;;       helm-M-x-fuzzy-match t)
+              ;; (validate-setq helm-ff-file-name-history-use-recentf t)
+              ;; (validate-setq helm-reuse-last-window-split-state t)
+              ;; ;; Don't use full width of the frame
+              ;; (validate-setq helm-split-window-in-side-p t)
+              ;; (helm-autoresize-mode t)
+              (use-package helm-projectile
+                :ensure t
+                :init (progn
+                        (helm-projectile-on)
+                        (setq projectile-switch-project-action 'helm-projectile))
+                :config (progn
+                          (validate-setq projectile-completion-system 'helm)
+                          ;; fix cannot create new file bug inside helm-projectile
+                          ;; https://www.reddit.com/r/emacs/comments/3m8i5r/helmprojectile_quickly_findcreate_new_file_in/
+                          (defvar helm-source-file-not-found
+                            (helm-build-dummy-source
+                                "Create file"
+                              :action 'find-file))
+                          (add-to-list 'helm-projectile-sources-list
+                                       helm-source-file-not-found t))))
+    :bind
+    (("M-x" . helm-M-x)
+     ("C-x b" . helm-mini)
+     ("M-y" . helm-show-kill-ring)
+     ("C-x C-f" . helm-find-files))
+    )
+
+  (ido-mode -1) ;; Turn off ido mode in case I enabled it accidentally
+#+END_SRC
+*** add =multiple-cursors= package
+#+BEGIN_SRC emacs-lisp
+  (use-package multiple-cursors
+      :ensure t
+      :bind (("C->" . mc/mark-next-like-this)
+             ("C-<" . mc/mark-previous-like-this)
+             ("C-*" . mc/mark-all-like-this)
+             ("C-S-c C-S-c" . mc/edit-lines)
+             ("<f8>" . mc/mark-next-like-this)
+             ("S-<f8>" . mc/mark-previous-like-this)
+             ("C-<f8>" . mc/mark-all-like-this)
+             ))
+#+END_SRC
+
+*** add phi-search & phi-search-mc can work with multiple-cursors
+**** configure phi-search (bind to "Ctrl-s")
+#+BEGIN_SRC emacs-lisp
+  (use-package phi-search
+    :ensure t
+    :init (progn
+            (require 'phi-replace)
+            (setq phi-search-limit           100
+                  phi-search-case-sensitive  nil
+                  phi-replace-case-sensitive t)
+            (bind-key "M-n" 'phi-search-again-or-next     phi-search-default-map)
+            (bind-key "M-p" 'phi-search-again-or-previous phi-search-default-map)
+            )
+    :bind
+    (("C-s" . phi-search)
+     ("C-r" . phi-search-backward)
+     ("M-%" . phi-replace-query))
+    )
+#+END_SRC
+**** configure phi-search-mc
+#+BEGIN_SRC emacs-lisp
+  (use-package phi-search-mc
+    :ensure t
+    :init (progn
+            (require 'phi-search)
+            (bind-key "C->" 'phi-search-mc/mark-next phi-search-default-map)
+            (bind-key "C-<" 'phi-search-mc/mark-previous phi-search-default-map)
+            (bind-key "C-*" 'phi-search-mc/mark-all phi-search-default-map)
+            (bind-key "<f8>" 'phi-search-mc/mark-next phi-search-default-map)
+            (bind-key "S-<f8>" 'phi-search-mc/mark-previous phi-search-default-map)
+            (bind-key "C-<f8>" 'phi-search-mc/mark-all phi-search-default-map))
+    )
+#+END_SRC
+*** TODO try =ace-jump-mode=
+#+BEGIN_SRC emacs-lisp
+  (use-package ace-jump-mode
+    :ensure t
+    :bind ("C-x j" . ace-jump-mode))
+#+END_SRC
+*** configure =shell-mode=
+#+BEGIN_SRC emacs-lisp
+  ;; M-x send-invisible RET text RET
+  ;; notice password prompts and turn off echoing for them
+  (add-hook 'comint-output-filter-functions
+            'comint-watch-for-password-prompt)
+#+END_SRC
+*** configure dired-mode
+#+BEGIN_SRC emacs-lisp
+  (setq dired-listing-switches "-alh")
+  ; (setq eshell-ls-use-in-dired t)
+#+END_SRC
+** Input Method Configuration
+*** add EIM-popup =(best after auto-complete)=
+一种很不错的拼音、五笔输入法。自己添加了popup支持
+#+BEGIN_SRC emacs-lisp
+  ;; ;; 设置输入法
+  ;; (add-to-list 'load-path (expand-file-name "site-lisp/zhk-eim" zhk-top-dir))
+  ;; (autoload 'eim-use-package "eim" "Another emacs input method")
+  ;; (setq eim-use-tooltip t)
+
+  ;; (defun zhk-eim-wb-activate-function ()
+  ;;   (add-hook 'eim-active-hook
+  ;;             (lambda ()
+  ;;               (progn
+  ;;                 (let ((map (eim-mode-map)))
+  ;;                   (define-key eim-mode-map "-" 'eim-previous-page)
+  ;;                   (define-key eim-mode-map "=" 'eim-next-page))
+  ;;                 (setq eim-page-length 6))
+  ;;               )))
+
+  ;; ;; 设置五笔输入法
+  ;; ;; 1. 临时拼音输入汉字。用 z 开头可以输入汉字的拼音并查看其五笔字码。
+  ;; ;; 2. 反查五笔。用 M-x eim-describe-char 可以查看光标处汉字的五笔字码。
+  ;; ;; 3. 加入自造词。M-x eim-table-add-word，默认是光标前的两个汉字。用 C-a 和 C-e 调整。
+
+  ;; (register-input-method
+  ;;  "eim-wb" "euc-cn" 'eim-use-package
+  ;;  "五笔" "汉字五笔输入法" "zhk-wb.txt" 'zhk-eim-wb-activate-function)
+
+  ;; (setq eim-wb-use-gbk t)     ;造词的时候使用
+
+  ;; ;; 设置拼音输入法
+  ;; (register-input-method
+  ;;  "eim-py" "euc-cn" 'eim-use-package
+  ;;  "拼音" "汉字拼音输入法" "py.txt")
+
+  ;; ;; 用 ; 暂时输入英文
+  ;; (require 'eim-extra)
+  ;; (global-set-key ";" 'eim-insert-ascii)
+  ;; (set-input-method "eim-wb")
+  ;; (setq activate-input-method t)
+#+END_SRC
+*** chinese-pyim
+#+BEGIN_SRC emacs-lisp
+  (use-package pyim
+    :ensure t
+    :config
+    ;; 激活 basedict 拼音词库
+    (use-package pyim-basedict
+      :ensure nil
+      :config (pyim-basedict-enable))
+    ;; 五笔用户使用 wbdict 词库
+    (use-package pyim-wbdict
+      :ensure t
+      :config (pyim-wbdict-gbk-enable))
+
+    (setq default-input-method "pyim")
+    (setq pyim-default-scheme 'wubi)
+    (setq pyim-page-style 'one-line)
+
+    ;; 使用 pupup-el 来绘制选词框
+    (setq pyim-page-tooltip 'popup)
+    ;; 选词框显示7个候选词
+    (setq pyim-page-length 7))
+#+END_SRC
+** Coding
+*** add auto-mode-list
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.cc\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.hpp\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.cxx\\'" . c++-mode))
+  (add-to-list 'auto-mode-alist '("\\.cpp\\'" . c++-mode))
+#+END_SRC
+*** Global-key-binding
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/open-eshell-other-buffer ()
+    "Open eshell in other buffer"
+    (interactive)
+    (split-window-vertically)
+    (eshell))
+  (defun zhk/clear-eshell-buffer ()
+    "Clear eshell buffer"
+    (interactive)
+    (let ((eshell-buffer-maximum-lines 0))
+      (eshell-truncate-buffer)))
+  (global-set-key [f10] 'zhk/open-eshell-other-buffer)
+  (global-set-key [C-f10] 'eshell)
+  (global-set-key [S-f10] 'zhk/clear-eshell-buffer)
+  (global-set-key [f11] 'shell)
+#+END_SRC
+*** goto-definition & back --> bind key =f12 & S-f12=
+ref[[http://sourceforge.net/mailarchive/message.php?msg_id=27414242]]
+#+BEGIN_SRC emacs-lisp
+  ;; (defvar zhk/semantic-tags-location-ring (make-ring 32))
+
+  ;; (defun zhk/semantic-goto-definition (point)
+  ;;   "Goto definition using semantic-ia-fast-jump   
+  ;; save the pointer marker if tag is found"
+  ;;   (interactive "d")
+  ;;   (condition-case err
+  ;;       (progn                            
+  ;;         (ring-insert zhk/semantic-tags-location-ring (point-marker))  
+  ;;         (semantic-ia-fast-jump point))
+  ;;     (error
+  ;;      ;;if not found remove the tag saved in the ring  
+  ;;      (set-marker (ring-remove zhk/semantic-tags-location-ring 0) nil nil)
+  ;;      (signal (car err) (cdr err)))))
+
+  ;; (defun zhk/semantic-goto-implement (point)
+  ;;   "Goto definition using semantic-ia-fast-jump   
+  ;; save the pointer marker if tag is found"
+  ;;   (interactive "d")
+  ;;   (condition-case err
+  ;;       (progn                            
+  ;;         (ring-insert zhk/semantic-tags-location-ring (point-marker))  
+  ;;         (semantic-complete-jump point))
+  ;;     (error
+  ;;      ;;if not found remove the tag saved in the ring  
+  ;;      (set-marker (ring-remove zhk/semantic-tags-location-ring 0) nil nil)
+  ;;      (signal (car err) (cdr err)))))
+
+
+  ;; (defun zhk/semantic-pop-tag-mark ()
+  ;;   "popup the tag save by semantic-goto-definition"   
+  ;;   (interactive)
+  ;;   (if (ring-empty-p zhk/semantic-tags-location-ring)
+  ;;       (message "%s" "No more tags available")
+  ;;     (let* ((marker (ring-remove zhk/semantic-tags-location-ring 0))
+  ;;            (buff (marker-buffer marker))
+  ;;            (pos (marker-position marker))
+  ;;            (cur-buff (current-buffer)))
+  ;;       (if (not buff)
+  ;;           (message "Buffer has been deleted")
+  ;;         (progn
+  ;;           (if (equal buff (current-buffer))
+  ;;               (message "Buffer is current-buffer.")
+  ;;             (progn (switch-to-buffer buff)
+  ;;                    (kill-buffer-if-not-modified cur-buff)))
+  ;;           (goto-char pos)
+  ;;           (redisplay) ; fixed linum missing problem.
+  ;;           ))
+  ;;       (set-marker marker nil nil))))
+
+  ;; (global-set-key [f12] 'zhk/semantic-goto-definition)
+  ;; (global-set-key [S-f12] 'zhk/semantic-pop-tag-mark)
+#+END_SRC
+*** comment/uncomment code --> bind key =Alt+;=
+1. when a region active, =Alt+;= comment/uncomment code.
+2. when no region active. comment/uncomment this line.
+#+BEGIN_SRC emacs-lisp
+  (defun qiang-comment-dwim-line (&optional arg)
+    "Replacement for the comment-dwim command.
+  If no region is selected and current line is not blank and we are not at the end of the line,
+  then comment current line.
+  Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
+    (interactive "*P")
+    (comment-normalize-vars)
+    (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
+        (comment-or-uncomment-region (line-beginning-position) (line-end-position))
+      (comment-dwim arg)))
+  (global-set-key "\M-;" 'qiang-comment-dwim-line)
+#+END_SRC
+*** set for tabs --> indentation behavior
+参考[[http://www.jwz.org/doc/tabs-vs-spaces.html][tabs-vs-spaces]].
+#+BEGIN_SRC emacs-lisp
+  (setq c-basic-offset 4)
+  (setq tab-width 4)
+  (setq-default tab-width 4)
+  (setq indent-tabs-mode nil)
+  ;; To make emacs use spaces instead of tabs
+  ;;            (Added by Art Lee on 2/19/2008)
+  (setq-default indent-tabs-mode nil)
+#+END_SRC
+*** setup projectile
+#+BEGIN_SRC emacs-lisp
+  (use-package projectile
+    :ensure t
+    :init (projectile-mode t)
+    :config
+    (add-to-list 'projectile-globally-ignored-files "*.org")
+    (add-to-list 'projectile-globally-ignored-modes "org-mode")
+    ;; (add-to-list 'projectile-globally-ignored-directories "orgfiles")
+    ;; (setq projectile-require-project-root nil)
+    (setq projectile-enable-caching t)
+    )
+#+END_SRC
+*** set up code-style
+#+BEGIN_SRC emacs-lisp
+  (setq c-default-style '((java-mode . "java")
+                          (c-mode . "k&r")
+                          (c++-mode . "k&r")
+                          (cc-mode . "k&r")
+                          ))
+  (use-package google-c-style
+     :ensure t
+     :init (progn
+             (defun zhk/c-setup-style ()
+               (google-set-c-style)
+               (c-set-style "google")
+               (setq tab-width 4)
+               (setq c-basic-offset tab-width)
+               (setq-default indent-tabs-mode nil)
+               (google-make-newline-indent)
+               (c-set-offset 'access-label '-)
+               )
+             ;;(add-hook 'c-mode-common-hook 'google-set-c-style)
+             (add-hook 'c-mode-common-hook 'zhk/c-setup-style))
+     :config (progn
+               (defun zhk/reformat-code-style (&optional arg region)
+                 "reformat source code"
+                 (interactive
+                  (list current-prefix-arg (use-region-p)))
+                 (zhk/c-setup-style)
+                 (if region
+                     (progn 
+                       (indent-region (region-beginning) (region-end) nil)
+                       (untabify (region-beginning) (region-end)))
+                   (progn
+                     (indent-region (point-min) (point-max) nil)
+                     (untabify (point-min) (point-max)))))
+               )
+     )
+#+END_SRC
+*** add =highlight-indentation= package
+show vertical guide lines of indentation levels (spaces only).
+[[http://stackoverflow.com/questions/1587972/how-to-display-indentation-guides-in-emacs][reference]].
+#+BEGIN_SRC emacs-lisp
+  (use-package highlight-indentation
+    :ensure t
+    :init (progn
+            (add-hook 'c-mode-common-hook   'highlight-indentation-mode)
+            (add-hook 'python-mode-hook     'highlight-indentation-mode)
+            (add-hook 'emacs-lisp-mode-hook 'highlight-indentation-mode)
+            (add-hook 'lisp-mode-hook       'highlight-indentation-mode)
+            (add-hook 'sh-mode-hook         'highlight-indentation-mode)
+            (add-hook 'asy-mode-hook        'highlight-indentation-mode)
+            (add-hook 'lua-mode-hook        'highlight-indentation-mode)
+            (add-hook 'json-mode-hook       'highlight-indentation-mode)
+            ;; (add-hook 'nxml-mode-hook       'highlight-indentation-mode)
+            ))
+#+END_SRC
+
+*** TODO try =indent-guide= package
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package indent-guide
+  ;;    :ensure nil
+  ;;    :init (progn
+  ;;             ;; (set-face-background 'indent-guide-face "red")
+  ;;             ;; (setq indent-guide-char ":")
+  ;;            ;;(add-hook 'emacs-lisp-mode-hook 'indent-guide-mode)
+  ;;            ))
+#+END_SRC
+*** update time-stamp =Last Modified=
+Before write file, update =Last Modified: <time-stamp>=
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/update-time-stamp ()
+    "update Last Modified: time-stamp in format 20xx/xx/xx hh:mm:ss"
+    (interactive)
+    (let (
+          (line-limit 10)
+          (ts-format
+           "^\\([ \t]*\\(\*\\|//\\|#\\)[ \t]*Last Modified:[ \t]*\\)\\([-T:+0-9/ \t]+\\)$")
+          search-limit
+          tmp-start
+          tmp-end
+          )
+      (save-excursion
+        (save-restriction
+          (widen)
+          (goto-char (point-min))
+          (forward-line line-limit)
+          (setq search-limit (point))
+          (goto-char (point-min))
+          (if (re-search-forward ts-format search-limit 't)
+              (progn
+                (setq tmp-start (match-beginning 3))
+                (setq tmp-end   (match-end 3))
+                (delete-region tmp-start tmp-end)
+                (goto-char tmp-start)
+                (insert-and-inherit (format-time-string
+                                     "%Y/%m/%d %02H:%02M:%02S"))
+                )
+            )
+          )
+        )
+      )
+    )
+  (add-hook 'before-save-hook 'zhk/update-time-stamp)
+#+END_SRC
+*** show line number
+显示行号。
+#+BEGIN_SRC emacs-lisp
+  (require 'linum)
+  
+  ;; (global-linum-mode 1)
+  ;; 行号后加一空格 
+  (defvar my-linum-format-string "%4d ")
+  
+  (add-hook 'linum-before-numbering-hook 'my-linum-get-format-string)
+  
+  (defun my-linum-get-format-string ()
+    (let* ((width (length (number-to-string
+                           (count-lines (point-min) (point-max)))))
+           (format (concat "%" (number-to-string width) "d ")))
+      (setq my-linum-format-string format)))
+  
+  (setq linum-format 'my-linum-format)
+  
+  (defun my-linum-format (line-number)
+    (propertize (format my-linum-format-string line-number) 'face 'linum))
+  
+  (defun zhk-turn-on-linum-mode ()
+    (linum-mode t))
+  
+  ;; (add-hook 'emacs-lisp-mode-hook 'zhk-turn-on-linum-mode)
+  ;; (add-hook 'lisp-mode-hook       'zhk-turn-on-linum-mode)
+  ;; (add-hook 'c-mode-common-hook   'zhk-turn-on-linum-mode)
+  ;; (add-hook 'python-mode-hook     'zhk-turn-on-linum-mode)
+  ;; (add-hook 'sh-mode-hook         'zhk-turn-on-linum-mode)
+#+END_SRC
+*** setup rainbow
+#+BEGIN_SRC emacs-lisp
+  ;; Show colors in code
+  (use-package rainbow-mode
+    :ensure t
+    :diminish (rainbow-mode . "🌈")
+    :init
+    (dolist
+        (hook '(css-mode-hook
+                html-mode-hook
+                js-mode-hook
+                emacs-lisp-mode-hook
+                text-mode-hook))
+      (add-hook hook #'rainbow-mode)))
+#+END_SRC
+*** init =yasnippet=
+#+BEGIN_SRC emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :diminish yas-minor-mode
+    :init (yas-global-mode t)
+    :config (progn 
+              ;; preserve tab-completion in ansi-term
+              (add-hook 'term-mode-hook
+                        (lambda ()
+                          (setq yas-dont-activate t)))
+              ;; set snippets
+              (require 'f)
+              (require 'dash)
+              (add-to-list 'yas-snippet-dirs (f-expand "snippets" zhk-top-dir))
+              ;; add all extra dir
+              (let ((dir (f-expand "extra" zhk-top-dir)))
+                (when (f-exists? dir)
+                  (--each-while
+                      (--map (f-expand "snippets" it)
+                             (f-directories dir))
+                      (f-exists? it)
+                    (add-to-list 'yas-snippet-dirs it))))
+              (yas-reload-all)
+              ;; disable tab
+              (define-key yas-minor-mode-map (kbd "<tab>") nil)
+              (define-key yas-minor-mode-map (kbd "TAB") nil)
+
+              ;;keys for navigation
+              (define-key yas-keymap [(tab)]       nil)
+              (define-key yas-keymap (kbd "TAB")   nil)
+              (define-key yas-keymap [(shift tab)] nil)
+              (define-key yas-keymap [backtab]     nil)
+              ;; (bind-key "M-n" 'yas-next-field-or-maybe-expand yas-keymap)
+              ;; (bind-key "M-p" 'yas-prev-field yas-keymap)
+              (bind-key "C-c C-n" 'yas-next-field-or-maybe-expand yas-keymap)
+              (bind-key "C-c C-p" 'yas-prev-field yas-keymap)
+              ))
+#+END_SRC
+*** init =auto-complete=
+#+BEGIN_SRC emacs-lisp
+  (use-package auto-complete
+    :ensure t
+    :init (progn
+            ;; (add-to-list 'ac-dictionary-directories (expand-file-name "dict" zhk-top-dir))
+            (require 'auto-complete-config)
+            (validate-setq ac-modes '(nxml-mode org-mode))
+            (defun ac-yasnippet-document (complete)
+              "* Completes Documentation for Yasnippet"
+              (let (templates only-one (ret ""))
+                (setq templates (mapcar #'cdr
+                                        (mapcan #'(lambda (table)
+                                                    (yas/fetch table complete))
+                                                (yas/get-snippet-tables))))
+                (mapc #'(lambda (template)
+                          (setq ret (format "%s%s\n%s\n" ret (yas/template-name template) (yas/template-content template))))
+                      templates)
+                (when (string-match "\n\\'" ret)
+                  (setq ret (replace-match "" nil nil ret)))
+                ret))
+            (ac-define-source yasnippet
+              '((depends yasnippet)
+                (candidates . ac-yasnippet-candidates)
+                (action . yas/expand)
+                (candidate-face . ac-yasnippet-candidate-face)
+                (selection-face . ac-yasnippet-selection-face)
+                (document . ac-yasnippet-document)
+                (symbol . "a")))
+            
+            ;; (ac-config-default)
+            (setq ac-auto-show-menu t
+                  ac-auto-start 2
+                  ac-delay .1
+                  ac-dwim t
+                  ac-candidate-limit ac-menu-height
+                  ac-use-menu-map t
+                  ac-use-quick-help t
+                  ac-quick-help-delay .8
+                  ac-disable-faces nil
+                  ac-ignore-case 'smart)
+            (set-default 'ac-sources
+                         '(ac-source-capf
+                           ac-source-yasnippet
+                           ac-source-dictionary
+                           ac-source-abbrev
+                           ac-source-words-in-buffer  ;去掉加快速度
+                           ;; ac-source-words-in-same-mode-buffers
+                           ;; ac-source-imenu
+                           ac-source-files-in-current-dir
+                           ac-source-filename))
+            (global-auto-complete-mode)
+            ;; (defun zhk/use-auto-complete-hook ()
+            ;;   (when (fboundp 'company-mode)
+            ;;     (company-mode -1))
+            ;;   (auto-complete-mode 1))
+            )
+    :config (progn                        ; run after module has been loaded
+              (ac-linum-workaround)
+              (use-package ac-capf
+                :ensure t)
+              (defun zhk/ac-elisp-setup ()
+                (setq ac-sources
+                      '(ac-source-variables
+                        ac-source-symbols
+                        ac-source-features
+                        ac-source-functions
+                        ac-source-yasnippet
+                        ac-source-words-in-same-mode-buffers
+                        ac-source-files-in-current-dir
+                        ac-source-filename)))
+              ;; (add-hook 'emacs-lisp-mode-hook 'zhk/ac-elisp-setup)
+              (defun zhk/ac-c++-setup ()
+                (setq ac-sources
+                      '(;ac-source-semantic-raw
+                        ac-source-yasnippet
+                        ac-source-dictionary
+                        ;; ac-source-words-in-buffer  ;去掉加快速度
+                        ac-source-words-in-same-mode-buffers
+                        ac-source-files-in-current-dir
+                        ac-source-filename)))
+              ;; (add-hook 'c-mode-common-hook 'zhk/ac-c++-setup)
+              ;; because outside had bind-key c-s to phi-search, so fix it.
+              ;; (bind-key "C-s" 'ac-isearch ac-menu-map)
+              ;; (defun zhk/c-compelte-semantic ()
+              ;;   (local-key-binding (kbd "C-c TAB") 'ac-complete-semantic))
+              ;; (add-hook 'c-mode-common-hook 'zhk/c-compelte-semantic)
+              
+              ))
+#+END_SRC
+*** install =company-mode=
+#+BEGIN_SRC emacs-lisp
+  (use-package company
+    :ensure t
+    ;; :defer 5
+    :init (progn
+            (setq company-idle-delay 0.05)
+            (setq company-minimum-prefix-length 2)
+            (setq company-dabbrev-downcase nil
+                  company-show-numbers t; 显示序号
+                  company-transformers '(company-sort-by-backend-importance)
+                  company-dabbrev-ignore-case nil
+                  company-require-match nil)
+            (setq company-global-modes '(not org-mode nxml-mode))
+            (global-company-mode))
+    :preface (progn
+               ;; enable yasnippet everywhere
+               (defvar company-mode/enable-yas t
+                 "Enable yasnippet for all backends.")
+               (defun company-mode/backend-with-yas (backend)
+                 (if (or (not company-mode/enable-yas)
+                         (and (listp backend) (member 'company-yasnippet backend)))
+                     backend
+                   (append (if (consp backend) backend (list backend))
+                           '(:with company-yasnippet)))))
+    ;; :bind ("C-x p" . company-yasnippet)
+    :config (progn
+              ;; remove unused backends
+              (validate-setq company-backends (delete 'company-semantic company-backends))
+              (validate-setq company-backends (delete 'company-eclim company-backends))
+              (validate-setq company-backends (delete 'company-xcode company-backends))
+              (validate-setq company-backends (delete 'company-clang company-backends))
+              (validate-setq company-backends (delete 'company-cmake company-backends))
+              (validate-setq company-backends (delete 'company-bbdb company-backends))
+              (validate-setq company-backends (delete 'company-oddmuse company-backends))
+              (validate-setq company-backends
+                             (mapcar #'company-mode/backend-with-yas company-backends))
+              (use-package company-statistics
+                :ensure t
+                :config (company-statistics-mode))
+              ;; similar popup colors
+              (custom-set-faces
+               '(company-preview
+                 ((t (:foreground "darkgray" :underline t))))
+               '(company-preview-common
+                 ((t (:inherit company-preview))))
+               '(company-tooltip
+                 ((t (:background "lightgray" :foreground "black"))))
+               '(company-tooltip-selection
+                 ((t (:background "steelblue" :foreground "white"))))
+               '(company-tooltip-common
+                 ((((type x)) (:inherit company-tooltip :weight bold))
+                  (t (:inherit company-tooltip))))
+               '(company-tooltip-common-selection
+                 ((((type x)) (:inherit company-tooltip-selection :weight bold))
+                  (t (:inherit company-tooltip-selection))))))
+    )
+#+END_SRC
+#+END_SRC
+*** enable =paredit-mode=
+[[http://www.emacswiki.org/emacs/PareditCheatsheet][PareditCheatSheet]]
+#+BEGIN_SRC emacs-lisp
+  (use-package paredit
+    :ensure t
+    :init (progn
+            (add-hook 'emacs-lisp-mode-hook       'enable-paredit-mode)
+            (add-hook 'eval-expression-minibuffer-setup-hook 'enable-paredit-mode)
+            (add-hook 'ielm-mode-hook             'enable-paredit-mode)
+            (add-hook 'lisp-mode-hook             'enable-paredit-mode)
+            (add-hook 'lisp-interaction-mode-hook 'enable-paredit-mode)
+            (add-hook 'scheme-mode-hook           'enable-paredit-mode)))
+#+END_SRC
+
+*** json-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package json-mode
+    :ensure t
+    :init (progn
+            (setq json-encoding-default-indentation "  "))
+    )
+#+END_SRC
+*** code folding. =hs-minor-mode=
+#+BEGIN_SRC emacs-lisp
+  (use-package hideshow
+    :ensure t
+    :init (progn 
+            (add-hook 'c-mode-common-hook   'hs-minor-mode)
+            (add-hook 'python-mode-hook     'hs-minor-mode)
+            (add-hook 'emacs-lisp-mode-hook 'hs-minor-mode)
+            (add-hook 'lisp-mode-hook       'hs-minor-mode)
+            (add-hook 'lua-mode-hook        'hs-minor-mode)
+            (add-hook 'json-mode-hook       'hs-minor-mode)))
+  ;; (defun zhk-set-code-fold-toggle ()
+  ;;   (define-key hs-minor-mode-map "\C-zh" 'hs-toggle-hiding)
+  ;;   (define-key hs-minor-mode-map "\C-ch" 'hs-toggle-hiding)
+  ;; )
+  ;; (add-hook 'hs-minor-mode-hook 'zhk-set-code-fold-toggle)
+#+END_SRC
+*** python
+**** setup =elpy=
+ref:[[https://github.com/jorgenschaefer/elpy/wiki/Installation]]
+#+BEGIN_SRC emacs-lisp
+  (use-package elpy
+    :ensure t
+    :config
+    (elpy-enable)
+    (elpy-use-ipython)
+    (setq python-shell-interpreter-args "--simple-prompt --pprint"))
+#+END_SRC
+**** setup =py-autopep8= beautify a Python buffer
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package py-autopep8
+  ;;   :ensure t
+  ;;   :init (progn
+  ;;           (setq py-autopep8-options '("--max-line-length=90"))
+  ;;           )
+  ;;   )
+#+END_SRC
+**** define =zhk/autopep8= beautify a region of python using autopep8
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/autopep8 ()
+    "Beautify a region of python using autopep8"
+    (interactive)
+    (let ((orig-point (point))
+          (cmd "python -c \"import autopep8,sys;reload(sys);sys.setdefaultencoding('utf-8');print autopep8.fix_code(sys.stdin.read().decode('utf-8'))\""))
+      (unless (mark)
+        (mark-defun))
+      (shell-command-on-region (point)
+                               (mark)
+                               cmd nil t)
+      (goto-char orig-point)))
+#+END_SRC
+*** doxymacs -- generate code comments.
+#+BEGIN_SRC emacs-lisp
+  (eval-and-compile
+    (defun zhk/doxymacs-load-path ()
+      (require 'f)
+      (f-join zhk-top-dir "site-lisp" "doxymacs")))
+  (use-package doxymacs
+    :load-path (lambda () (list (zhk/doxymacs-load-path)))
+    :init (progn
+            (defun my-doxymacs-font-lock-hook ()
+              (if (or (eq major-mode 'c-mode)
+                      (eq major-mode 'c++-mode)
+                      (eq major-mode 'cc-mode))
+                  (doxymacs-font-lock)))
+            (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook)
+            (add-hook 'c-mode-common-hook 'doxymacs-mode)
+            )
+    )
+#+END_SRC
+*** magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :bind ("C-c g" . magit-status))
+#+END_SRC
+*** setup rtags
+#+BEGIN_SRC emacs-lisp
+  (GNULinux
+   (use-package rtags
+     :ensure t
+     :init
+     (progn
+       (add-hook 'c-mode-hook 'rtags-start-process-unless-running)
+       (add-hook 'c++-mode-hook 'rtags-start-process-unless-running))
+     :config
+     (progn
+       (rtags-enable-standard-keybindings)
+       (require 'f)
+       (require 's)
+       (setq zhk/rtags-bin-dir
+             (f-join (rtags-package-install-path)
+                     (format "rtags-%s" rtags-package-version)
+                     "bin"))
+       ;; add rtags-xxx/bin to path
+       (setenv "PATH"
+               (s-join path-separator
+                       (list zhk/rtags-bin-dir (getenv "PATH"))))
+       (add-to-list 'exec-path zhk/rtags-bin-dir)
+       )))
+#+END_SRC
+*** setup ycmd
+Use =C-c y .= ycmd-goto then Use =M-,=back original position.
+
+#+BEGIN_SRC emacs-lisp
+  (use-package ycmd
+    :ensure t
+    :init (progn
+            (when (getenv "DOTA_GP_EPREFIX")
+              (require 'f)
+              (setq ycmd-server-command
+                    (list "python2"
+                          (f-join (getenv "DOTA_GP_EPREFIX")
+                                  "usr/share/vim/vimfiles/third_party/ycmd/ycmd")))
+              (setq ycmd-global-config
+                    (f-join zhk-top-dir "ycmd_conf/ycmd_global_conf.py")))
+            ;; (setq ycmd-force-semantic-completion t)
+            (add-hook 'c++-mode-hook #'ycmd-mode)
+            (add-hook 'c-mode-hook   #'ycmd-mode))
+    :bind (([f12] . ycmd-goto)
+           ([S-f12] . xref-pop-marker-stack))
+    :config (progn
+              (define-key ycmd-mode-map ycmd-keymap-prefix nil)
+              (setq ycmd-keymap-prefix (kbd "C-c y"))
+              (define-key ycmd-mode-map ycmd-keymap-prefix
+                ycmd-command-map)
+              (use-package company-ycmd
+                :ensure t
+                :init (progn
+                        (setq company-ycmd-enable-fuzzy-matching nil)
+                        (setq company-ycmd-request-sync-timeout 0)
+                        ;; (add-hook 'ycmd-mode-hook 'company-ycmd-setup)
+                        )
+                :config (progn
+                          (defun zhk/company-ycmd-yasnippet--prefix ()
+                            (and (bound-and-true-p yas-minor-mode)
+                                 (bound-and-true-p ycmd-mode)
+                                 (let ((x (company-grab-symbol-cons "\\.\\|->\\|::\\|/" 2)))
+                                   (cond ((stringp x) x)
+                                         ((consp x) nil)
+                                         (t x)))))
+                          ;; when inside semantic, disable yasnippet
+                          (defun zhk/company-ycmd-yasnippet (command &optional arg &rest ignore)
+                            (interactive (list 'interactive))
+                            (cl-case command
+                              (interactive (company-begin-backend 'company-yasnippet))
+                              (prefix (zhk/company-ycmd-yasnippet--prefix))
+                              (annotation
+                               (concat
+                                (unless company-tooltip-align-annotations " -> ")
+                                (get-text-property 0 'yas-annotation arg)))
+                              (candidates (company-yasnippet--candidates arg))
+                              (no-cache t)
+                              (post-completion
+                               (let ((template (get-text-property 0 'yas-template arg))
+                                     (prefix-offset (get-text-property 0 'yas-prefix-offset arg)))
+                                 (yas-expand-snippet (yas--template-content template)
+                                                     (- (point) (length arg) prefix-offset)
+                                                     (point)
+                                                     (yas--template-expand-env template))))))
+                          (defun zhk/add-ycmd-backends ()
+                            (make-local-variable 'company-backends)
+                            (add-to-list 'company-backends
+                                         '(company-ycmd :with zhk/company-ycmd-yasnippet)))
+                          (add-hook 'ycmd-mode-hook 'zhk/add-ycmd-backends)
+                          (defun zhk/company-ycmd-semantic-complete ()
+                            (interactive)
+                            (let ((ycmd-force-semantic-completion t))
+                              (company-complete)))
+                          (define-key ycmd-mode-map "\C-xp" 'zhk/company-ycmd-semantic-complete)
+                          ))
+              ;; (defun ycmd-setup-completion-at-point-function ()
+              ;;   "Setup `completion-at-point-functions' for `ycmd-mode'."
+              ;;   (add-hook 'completion-at-point-functions
+              ;;             #'ycmd-complete-at-point nil :local))
+              ;; (add-hook 'ycmd-mode #'ycmd-setup-completion-at-point-function)
+              )
+    )
+#+END_SRC
+*** setup =cmake-mode=
+#+BEGIN_SRC emacs-lisp
+  (use-package cmake-mode
+    :ensure t)
+#+END_SRC
+*** setup eldoc
+#+BEGIN_SRC emacs-lisp
+  (use-package eldoc
+    :ensure t
+    :diminish eldoc-mode
+    :init (add-hook 'ycmd-mode-hook 'ycmd-eldoc-setup))
+#+END_SRC
+*** add scheme support
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package geiser
+  ;;   :ensure t
+  ;;   :init (progn
+  ;;           (Windows
+  ;;            ;; (setq geiser-racket-binary "D:/Program/Racket/Racket.exe")
+  ;;            (setq geiser-active-implementations '(racket))
+  ;;            (add-hook 'scheme-mode-hook 'geiser-mode))))
+
+  ;; (use-package ac-geiser
+  ;;   :ensure t
+  ;;   :init (progn
+  ;;           (require 'ac-geiser)
+  ;;           (defun zhk/turn-off-company-mode ()
+  ;;             (when (fboundp 'company-mode)
+  ;;               (company-mode -1)))
+  ;;           (add-hook 'geiser-mode-hook 'ac-geiser-setup)
+  ;;           (add-hook 'geiser-repl-mode-hook 'ac-geiser-setup)
+  ;;           (add-hook 'geiser-mode-hook 'zhk/turn-off-company-mode)
+  ;;           (add-hook 'geiser-repl-mode-hook 'zhk/turn-off-company-mode)
+  ;;           (eval-after-load "auto-complete"
+  ;;             '(add-to-list 'ac-modes 'geiser-repl-mode))))
+#+END_SRC
+*** xml Configuration
+#+BEGIN_SRC emacs-lisp
+  (use-package nxml-mode
+    :defer 2
+    :init (progn
+            (add-to-list 'hs-special-modes-alist
+                         (list 'nxml-mode
+                               "<!--\\|<[^/>]*[^/]>"
+                               "-->\\|</[^/>]*[^/]>"
+                               "<!--"
+                               'nxml-forward-element
+                               nil))
+            (add-hook 'nxml-mode-hook 'hs-minor-mode)
+            (defun zhk/xml-set-indent ()
+              (set-variable 'nxml-child-indent 4)
+              (set-variable 'nxml-attribute-indent 4)
+              ;; (set-variable 'nxml-section-element-name-regexp
+              ;;               (concat nxml-section-element-name-regexp
+              ;;                       "\\|action\\|task"))
+              )
+
+            (add-hook 'nxml-mode-hook 'zhk/xml-set-indent)
+            (setq auto-mode-alist
+                  (cons '("\\.\\(xml\\|xsl\\|rng\\)\\'" . nxml-mode)
+                        auto-mode-alist)))
+    :config (progn
+              (eval-after-load 'rng-loc
+                '(add-to-list 'rng-schema-locating-files
+                              (expand-file-name "nxml-schemas/schemas.xml" zhk-top-dir)))
+              (set-variable 'rng-validate-delay 3)
+              (set-variable 'rng-validate-quick-delay 0.8)))
+
+  ;;; company mode failed to work
+  ;; (add-hook 'nxml-mode-hook
+  ;;           (lambda ()
+  ;;             (setq-local company-idle-time 0.2)
+  ;;             (setq-local company-backends
+  ;;                         '(company-nxml
+  ;;                           company-capf
+  ;;                           company-files
+  ;;                           company-keywords
+  ;;                           company-dabbrev))))
+
+  (use-package auto-complete-nxml
+    :ensure t
+    :config (progn
+              ;; Keystroke for popup help about something at point.
+              (setq auto-complete-nxml-popup-help-key "C-:")
+              ;; Keystroke for toggle on/off automatic completion.
+              (setq auto-complete-nxml-toggle-automatic-key "C-c C-t")
+              ;; (add-hook 'nxml-mode-hook 'zhk/use-auto-complete-hook)
+              ))
+
+#+END_SRC
+*** scala configuration
+reference: [[http://ensime.github.io/editors/emacs/install/]]
+#+BEGIN_SRC emacs-lisp
+  (use-package ensime
+    :ensure t)
+
+  (use-package scala-mode
+    :interpreter
+    ("scala" . scala-mode)
+    :init
+    (progn
+      ;; For complex scala files
+      (setq max-lisp-eval-depth 50000)
+      (setq max-specpdl-size 5000)
+      (add-hook 'scala-mode-hook 'hs-minor-mode)
+      (add-hook 'scala-mode-hook 'highlight-indentation-mode)))
+#+END_SRC
+*** lua-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package lua-mode
+    :ensure t)
+#+END_SRC
+*** java ide like
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package autodisass-java-bytecode
+  ;;   :ensure t
+  ;;   :defer t)
+
+  (use-package google-c-style
+    :defer t
+    :ensure t
+    :commands
+    (google-set-c-style))
+
+  (use-package rainbow-delimiters
+    :ensure t
+    :config
+    (add-hook 'java-mode-hook 'rainbow-delimiters-mode)
+    (add-hook 'scala-mode-hook 'rainbow-delimiters-mode)
+    (add-hook 'c-mode-common-hook 'rainbow-delimiters-mode))
+
+  (use-package smartparens
+    :ensure t
+    :config
+    (add-hook 'java-mode-hook 'smartparens-mode)
+    (add-hook 'scala-mode-hook 'smartparens-mode)
+    (add-hook 'c-mode-common-hook 'smartparens-mode))
+
+  (use-package highlight-symbol
+    :ensure t
+    :config
+    (add-hook 'java-mode-hook 'highlight-symbol-mode)
+    (add-hook 'scala-mode-hook 'highlight-symbol-mode)
+    (add-hook 'c-mode-common-hook 'highlight-symbol-mode))
+
+  ;; (GNULinux
+  ;;  (use-package meghanada
+  ;;    :ensure t
+  ;;    :init
+  ;;    (add-hook 'java-mode-hook
+  ;;              (lambda ()
+  ;;                ;; (google-set-c-style)
+  ;;                ;; (google-make-newline-indent)
+  ;;                (meghanada-mode t)
+  ;;                ;; (smartparens-mode t)
+  ;;                ;; (rainbow-delimiters-mode t)
+  ;;                ;; (highlight-symbol-mode t)
+  ;;                (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
+  ;;    ;; :config
+  ;;    ;; (setq meghanada-server-remote-debug t)
+  ;;    ;; (setq meghanada-javac-xlint "-Xlint:all,-processing")
+  ;;    ;; :bind
+  ;;    ;; (:map meghanada-mode-map
+  ;;    ;;       ("C-S-t" . meghanada-switch-testcase)
+  ;;    ;;       ("M-RET" . meghanada-local-variable)
+  ;;    ;;       ("C-M-." . helm-imenu)
+  ;;    ;;       ("C-z" . hydra-meghanada/body))
+  ;;    :commands
+  ;;    (meghanada-mode)))
+  (condition-case nil
+      (require 'use-package)
+    (file-error
+     (require 'package)
+     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+     (package-initialize)
+     (package-refresh-contents)
+     (package-install 'use-package)
+     (require 'use-package)))
+
+  (use-package projectile :ensure t)
+  (use-package treemacs :ensure t)
+  (use-package yasnippet :ensure t)
+  (use-package lsp-mode :ensure t)
+  (use-package hydra :ensure t)
+  (use-package company-lsp :ensure t)
+  (use-package lsp-ui :ensure t)
+  (use-package lsp-java :ensure t :after lsp-mode
+    :config (add-hook 'java-mode-hook #'lsp))
+
+  ;; (use-package dap-mode
+  ;;   :ensure t :after lsp-mode
+  ;;   :config
+  ;;   (dap-mode t)
+  ;;   (dap-ui-mode t))
+
+  ;; (use-package dap-java :after (lsp-java))
+  (use-package lsp-java-treemacs :after (treemacs))
+
+  (GNULinux
+   (use-package lsp-mode
+     :ensure t
+     :init (progn
+             (add-hook 'java-mode-hook #'lsp-mode)
+             (setq lsp-highlight-symbol-at-point nil))
+     :config (progn
+               (use-package lsp-java
+                 :ensure t))))
+
+  (Windows
+   (use-package jdee
+     :if (equal system-type 'windows-nt)
+     :ensure t
+     :config
+     (setq jdee-server-dir
+           (expand-file-name ".emacs.d/jdee-bundle-1.1-SNAPSHOT.jar-jar-with-dependencies.jar" zhk-top-dir))
+     ))
+#+END_SRC
+*** setup markdown
+#+BEGIN_SRC emacs-lisp
+  (use-package markdown-mode
+    :ensure t
+    :commands (markdown-mode gfm-mode)
+    :mode (("README\\.md\\'" . gfm-mode)
+           ("\\.md\\'" . markdown-mode)
+           ("\\.markdown\\'" . markdown-mode))
+    :init (progn
+            (setq markdown-command "multimarkdown")
+            
+            (add-hook 'markdown-mode-hook #'orgtbl-mode)
+            ;; Usage Example:
+            ;;
+            ;; <!-- BEGIN RECEIVE ORGTBL ${1:YOUR_TABLE_NAME} -->
+            ;; <!-- END RECEIVE ORGTBL $1 -->
+            ;;
+            ;; <!--
+            ;; #+ORGTBL: SEND $1 orgtbl-to-gfm
+            ;; | $0 |
+            ;; -->
+            (defun orgtbl-to-gfm (table params)
+              "Convert the Orgtbl mode TABLE to GitHub Flavored Markdown."
+              (let* ((alignment (mapconcat
+                                 (lambda (x) (if x "|--:" "|---"))
+                                 org-table-last-alignment ""))
+                     (params2
+                      (list
+                       :splice t
+                       :hline (concat alignment "|")
+                       :lstart "| " :lend " |" :sep " | ")))
+                (orgtbl-to-generic table (org-combine-plists params2 params))
+                ;; (require 'ox-md)
+                ;; (require 'ox-ascii)
+                ;; (require 'ox-html)
+                ;; (orgtbl-to-generic table (org-combine-plists params2 params) 'md)
+                ))
+            ))
+#+END_SRC
+*** setup graphviz dot
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package graphviz-dot-mode
+  ;;   :ensure t)
+#+END_SRC
+
+** Org-mode configuration
+*** basic configuration
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.org\\'" . org-mode))
+  (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+  (add-hook 'org-mode-hook 'turn-on-font-lock)
+
+  ;; fontify code blocks
+  (setq org-src-fontify-natively t)
+
+  ;; 解决org-mode在编辑中文的时候不会自动折行的问题。
+  (add-hook 'org-mode-hook 
+            (lambda () (setq truncate-lines nil)))
+
+  ;;(global-set-key "\C-cl" 'org-store-link)
+  (bind-key "\C-cl" 'org-store-link)
+  (bind-key "\C-ca" 'org-agenda)
+  (bind-key "\C-cb" 'org-iswitchb)
+
+  (setq org-log-done t)
+
+  (require 'ox)
+  (use-package ox-gfm
+    :ensure t
+    :config
+    (setq org-src-fontify-natively t))
+
+  (use-package org
+    :ensure t
+    :config (progn
+              (org-babel-do-load-languages
+               'org-babel-load-languages
+               '(
+                 (awk . t)
+                 (calc .t)
+                 (C . t)
+                 (emacs-lisp . t)
+                 (haskell . t)
+                 (gnuplot . t)
+                 (latex . t)
+                 ;;(ledger . t)
+                 (js . t)
+                 (haskell . t)
+                 ;; (http . t)
+                 (perl . t)
+                 (python . t)
+                 ;; (gnuplot . t)
+                 ;; org-babel does not currently support php.  That is really sad.
+                 ;;(php . t)
+                 (R . t)
+                 (scheme . t)
+                 (shell . t)
+                 (sql . t)
+                 ;;(sqlite . t)
+                 ))))
+
+
+#+END_SRC
+
+*** support auto-complete
+#+BEGIN_SRC emacs-lisp
+  (use-package org-ac
+    :ensure t
+    :init (progn
+            (require 'org-ac)
+            ;; (add-hook 'org-mode-hook 'zhk/use-auto-complete-hook)
+            )
+    :config (progn
+              (org-ac/config-default)))
+#+END_SRC
+
+** other usefull stuff
+*** better undo --> =undo-tree=
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-tree
+    :ensure t
+    :config (progn
+              (global-undo-tree-mode)))
+#+END_SRC
+*** Key chords --> =jk -undo= =we -other-window=
+#+BEGIN_SRC emacs-lisp
+  ;; (use-package key-chord
+  ;;   :ensure t
+  ;;   :init
+  ;;   (progn 
+  ;;     (key-chord-mode 1)
+  ;;     (key-chord-define-global "jk" 'undo)
+  ;;     (key-chord-define-global "we" 'other-window)))
+#+END_SRC
+*** Expand region .. fast select region
+Expand region increases the selected region by semantic units. 
+Just keep pressing the key until it selects what you want.
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :ensure t
+    :bind ("C-c m" . er/expand-region))
+#+END_SRC
+
+*** Guess key-binding
+#+BEGIN_SRC emacs-lisp
+  (defun zhk/guess-where-keybinding-is-defined (key)
+    "try to guess where a key binding might be defined"
+    (interactive (list (read-key-sequence "Describe key: ")))
+    (let ((bindings (minor-mode-key-binding key))
+          found)
+      (while (and bindings (not found))
+        (if (setq found (caar bindings))
+            (find-function (cdar bindings)))
+        (setq bindings (cdr bindings)))))
+#+END_SRC
+
+** Load Extra Setting
+Load main.org inside extra/xxx directory.
+#+BEGIN_SRC emacs-lisp
+  (let ((dir (f-expand "extra" zhk-top-dir)))
+    (when (f-exists? dir)
+      (--each-while
+          (--map (f-expand "main.org" it)
+                 (f-directories dir))
+          (f-exists? it)
+        (org-babel-load-file it))))
+#+END_SRC
+** extra mode
+*** proguard-mode
+#+BEGIN_SRC emacs-lisp
+  (el-get-bundle
+    proguard-mode
+    :url "https://github.com/CarloRodriguez/proguard-mode.git"
+    (add-to-list 'auto-mode-alist '("\\.pro$" . proguard-mode)))
+#+END_SRC
+** for docker
+*** docker client
+#+BEGIN_SRC emacs-lisp
+  (use-package docker
+    :ensure t
+    :config (progn (docker-global-mode)))
+#+END_SRC
+*** dockerfile-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package dockerfile-mode
+    :ensure t
+    :init (add-to-list 'auto-mode-alist '("Dockerfile\\'" . dockerfile-mode)))
+#+END_SRC
+*** docker-compose-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package docker-compose-mode)
+#+END_SRC
+*** yaml-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package yaml-mode
+    :ensure t
+    :init (progn
+            (require 'yaml-mode)
+            (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode)))
+    :config (progn
+              (add-hook 'yaml-mode-hook
+                        '(lambda ()
+                           (define-key yaml-mode-map "\C-m" 'newline-and-indent)))))
+#+END_SRC
+* elisp tricks
+** Get Current Buffer path
+ref:[[http://xahlee.blogspot.com/2012/07/emacs-lisp-getting-current-buffer-path.html]]
+=(or (buffer-file-name) default-directory)=
+** Insert Colored String
+#+BEGIN_EXAMPLE
+;; http://www.gnu.org/software/emacs/manual/html_node/elisp/Basic-Faces.html#Basic-Faces
+(insert (propertize "hello" 'face '(:foreground "yellow" :weight bold)))
+(font-lock-mode 1) ;; 如果用font-lock-face 需要开户font-lock-mode
+(insert (propertize "hello" 'font-lock-face '(:foreground "yellow" :weight bold)))
+(insert (propertize "hello" 'font-lock-face 'underline))
+(insert (propertize "hello" 'font-lock-face 'success))
+(insert (propertize "hello" 'font-lock-face 'error))
+(insert (propertize "hello" 'font-lock-face 'warning))
+(insert (propertize "hello" 'font-lock-face 'highlight))
+(insert (propertize "hello" 'font-lock-face 'shadow))
+#+END_EXAMPLE
+* git operation
+** update all submodules
+#+BEGIN_SRC sh
+  git submodule update --init
+  git submodule update
+  git submodule foreach git pull origin master
+#+END_SRC
+* Screen Tutorial
+** KeyBinding
+| C-a ?    | 显示所有键绑定信息                        |
+| C-a w    | 显示所有窗口列表                          |
+| C-a C-a  | 切换到之前显示的窗口                      |
+| C-a c    | 创建一个新的运行shell的窗口并切换到该窗口 |
+| C-a n    | 切换到下一个窗口                          |
+| C-a p    | 切换到前一个窗口(与C-a n相对)             |
+| C-a 0..9 | 切换到窗口0..9                            |
+| C-a a    | 发送 C-a到当前窗口                        |
+| C-a d    | 暂时断开screen会话                        |
+| C-a k    | 杀掉当前窗口                              |
+| C-a [    | 进入拷贝/回滚模式                         |
+** Command Line
+下面命令启动的screen会话指定了命令字符为C-t，转义C-t的字符为t，通过C-t ?命令可以看到该变化。
+[root@tivf18 root]# screen -e^tt
+* setup python
+#+BEGIN_SRC sh
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None ipython
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None Flask
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None elpy
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None jedi
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None rope
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None flake8
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None pyflakes
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None autopep8
+$HOME/local/bin/easy_install --prefix=$HOME/local -f $HOME/.basket -H None pip
+sudo easy_install -i http://pypi.douban.com/simple/  ipython
+sudo easy_install -i http://mirrors.aliyun.com/pypi/simple/ ipython
+#+END_SRC
+** install numpy & scipy
+*** install blas & lapack
+#+BEGIN_SRC sh
+wget http://www.netlib.org/lapack/lapack.tgz
+tar -zxf lapack.tgz
+cd lapack-3.1.1
+cp make.inc.example make.inc
+#+END_SRC
+
+* bash tricks                                                          :bash:
+** ssh                                                                  :ssh:
+ssh otherhost /bin/bash << EOF
+EOF
+** gcc-Environment-Variables
+#+BEGIN_SRC sh
+zzz=/home/dota.zk/local/opt/llvm
+CPATH=zzz/bin:$CPATH
+C_INCLUDE_PATH=zzz/include:$C_INCLUDE_PATH
+CPLUS_INCLUDE_PATH=zzz/include:$CPLUS_INCLUDE_PATH
+LD_LIBRARY_PATH=zzz/lib:$LD_LIBRARY_PATH
+LIBRARY_PATH=zzz/lib:$LIBRARY_PATH
+#+END_SRC
+* Install GCC
+#+BEGIN_SRC sh
+  # wget http://mirrors.ustc.edu.cn/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.gz
+  wget ftp://ftp.gnu.org/gnu/gcc/gcc-4.8.2/gcc-4.8.2.tar.bz2
+  tar -xvjf gcc-4.8.2.tar.bz2
+  cd gcc-4.8.2
+  ./contrib/download_prerequisites
+  cd ..
+  mkdir gcc-4.8.2-build
+  cd gcc-4.8.2-build
+  $PWD/../gcc-4.8.2/configure --prefix=$HOME/toolchains --enable-languages=c,c++
+  make -j$(nproc)
+  make install
+
+  # install gas
+  wget http://mirrors.ustc.edu.cn/gnu/binutils/binutils-2.25.tar.gz
+  tar -zxvf binutils-2.25.tar.gz
+
+#+END_SRC
+* install llvm
+#+BEGIN_SRC sh
+wget http://llvm.org/releases/3.2/llvm-3.2.src.tar.gz
+wget http://llvm.org/releases/3.2/clang-3.2.src.tar.gz
+wget http://llvm.org/releases/3.2/compiler-rt-3.2.src.tar.gz
+
+tar zxvf ./llvm-3.2.src.tar.gz && mv llvm-3.2.src llvm-3.2
+tar zxvf ./clang-3.2.src.tar.gz && mv clang-3.2.src llvm-3.2/tools/clang
+tar zxvf ./compiler-rt-3.2.src.tar.gz && mv compiler-rt-3.2.src llvm-3.2/projects/compiler-rt
+
+../llvm-3.2/configure --enable-targets=host-only --prefix=/home/dota.zk/local/opt/llvm --enable-languages=c,c++
+make ENABLE_OPTIMIZED=0
+
+#+END_SRC
+* XML
+** Convert xsd to rnc
+#+BEGIN_SRC shell
+
+# http://www.shadegrowncode.com/2009/08/converting-xml-schema-to-relax-ng.html
+wget http://java.net/downloads/msv/nightly/rngconv.20060319.zip
+java -jar rngconv.jar ../xflow.xsd > ../res.rng
+
+# http://www.thaiopensource.com/relaxng/trang.html
+# http://www.thaiopensource.com/relaxng/trang-manual.html
+wget http://jing-trang.googlecode.com/files/trang-20081028.zip
+java -jar trang.jar -I rng -O rnc ../res.rng ../res.rnc
+#+END_SRC
