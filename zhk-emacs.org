@@ -1250,9 +1250,31 @@ ref:[[https://github.com/jorgenschaefer/elpy/wiki/Installation]]
   (use-package elpy
     :ensure t
     :config
+    (require 'elpy)
+    (setq elpy-modules (delq 'elpy-module-company elpy-modules))
+
     (elpy-enable)
+    ;; setup virtualenv
+    ;; (pyvenv-activate "/Users/zhangkai/local/virtualenv-list/py4j")
     (elpy-use-ipython)
-    (setq python-shell-interpreter-args "--simple-prompt --pprint"))
+    (setq python-shell-interpreter-args "--simple-prompt --pprint")
+
+    ;; (setq python-shell-interpreter "jupyter"
+    ;;       python-shell-interpreter-args "console --simple-prompt"
+    ;;       python-shell-prompt-detect-failure-warning nil)
+    ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
+    ;;              "jupyter")
+
+    ;; fix company-yasnippet
+    ;; ref: https://github.com/jorgenschaefer/elpy/issues/530
+    (add-hook 'python-mode-hook
+              (lambda ()
+                ;; explicitly load company for the occasion when the deferred
+                ;; loading with use-package hasn't kicked in yet
+                (company-mode)
+                (add-to-list 'company-backends
+                             (company-mode/backend-with-yas 'elpy-company-backend))))
+    )
 #+END_SRC
 **** setup =py-autopep8= beautify a Python buffer
 #+BEGIN_SRC emacs-lisp
