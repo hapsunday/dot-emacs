@@ -423,7 +423,7 @@ ref:[[http://batsov.com/articles/2012/02/19/color-theming-in-emacs-reloaded/][ve
   (zhk/package-install 'solarized-theme)
   (zhk/package-install 'color-theme-sanityinc-tomorrow)
   (zhk/package-install 'color-theme-sanityinc-solarized)
-  (zhk/package-install 'color-theme-solarized)
+  ;;(zhk/package-install 'color-theme-solarized)
   ;;; (zhk/package-install 'colorsarenice-theme)
 #+END_SRC
 *** enable copy with outside application
@@ -1223,7 +1223,12 @@ Before write file, update =Last Modified: <time-stamp>=
   (use-package json-mode
     :ensure t
     :init (progn
-            (setq json-encoding-default-indentation "  "))
+            (setq json-encoding-default-indentation "  ")
+            (defun zhk/json-mode-tab-with-hook ()
+              ;;(make-local-variable 'tab-width)
+              (setq-local tab-width 2)
+              (setq-local js-indent-level 2))
+            (add-hook 'json-mode-hook 'zhk/json-mode-tab-with-hook))
     )
 #+END_SRC
 *** code folding. =hs-minor-mode=
@@ -1256,7 +1261,7 @@ ref:[[https://github.com/jorgenschaefer/elpy/wiki/Installation]]
     (elpy-enable)
     ;; setup virtualenv
     ;; (pyvenv-activate "/Users/zhangkai/local/virtualenv-list/py4j")
-    (elpy-use-ipython)
+    ;;(elpy-use-ipython)
     (setq python-shell-interpreter-args "--simple-prompt --pprint")
 
     ;; (setq python-shell-interpreter "jupyter"
@@ -1520,19 +1525,19 @@ Use =C-c y .= ycmd-goto then Use =M-,=back original position.
 *** scala configuration
 reference: [[http://ensime.github.io/editors/emacs/install/]]
 #+BEGIN_SRC emacs-lisp
-  (use-package ensime
-    :ensure t)
+  ;; (use-package ensime
+  ;;   :ensure t)
 
-  (use-package scala-mode
-    :interpreter
-    ("scala" . scala-mode)
-    :init
-    (progn
-      ;; For complex scala files
-      (setq max-lisp-eval-depth 50000)
-      (setq max-specpdl-size 5000)
-      (add-hook 'scala-mode-hook 'hs-minor-mode)
-      (add-hook 'scala-mode-hook 'highlight-indentation-mode)))
+  ;; (use-package scala-mode
+  ;;   :interpreter
+  ;;   ("scala" . scala-mode)
+  ;;   :init
+  ;;   (progn
+  ;;     ;; For complex scala files
+  ;;     (setq max-lisp-eval-depth 50000)
+  ;;     (setq max-specpdl-size 5000)
+  ;;     (add-hook 'scala-mode-hook 'hs-minor-mode)
+  ;;     (add-hook 'scala-mode-hook 'highlight-indentation-mode)))
 #+END_SRC
 *** lua-mode
 #+BEGIN_SRC emacs-lisp
@@ -1623,26 +1628,26 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
   ;;   (dap-ui-mode t))
 
   ;; (use-package dap-java :after (lsp-java))
-  (use-package lsp-java-treemacs :after (treemacs))
+  ;; (use-package lsp-java-treemacs :after (treemacs))
 
-  (GNULinux
-   (use-package lsp-mode
-     :ensure t
-     :init (progn
-             (add-hook 'java-mode-hook #'lsp-mode)
-             (setq lsp-highlight-symbol-at-point nil))
-     :config (progn
-               (use-package lsp-java
-                 :ensure t))))
+  ;; (GNULinux
+  ;;  (use-package lsp-mode
+  ;;    :ensure t
+  ;;    :init (progn
+  ;;            (add-hook 'java-mode-hook #'lsp-mode)
+  ;;            (setq lsp-highlight-symbol-at-point nil))
+  ;;    :config (progn
+  ;;              (use-package lsp-java
+  ;;                :ensure t))))
 
-  (Windows
-   (use-package jdee
-     :if (equal system-type 'windows-nt)
-     :ensure t
-     :config
-     (setq jdee-server-dir
-           (expand-file-name ".emacs.d/jdee-bundle-1.1-SNAPSHOT.jar-jar-with-dependencies.jar" zhk-top-dir))
-     ))
+  ;; (Windows
+  ;;  (use-package jdee
+  ;;    :if (equal system-type 'windows-nt)
+  ;;    :ensure t
+  ;;    :config
+  ;;    (setq jdee-server-dir
+  ;;          (expand-file-name ".emacs.d/jdee-bundle-1.1-SNAPSHOT.jar-jar-with-dependencies.jar" zhk-top-dir))
+  ;;    ))
 #+END_SRC
 *** setup markdown
 #+BEGIN_SRC emacs-lisp
@@ -1822,9 +1827,9 @@ Load main.org inside extra/xxx directory.
 ** for docker
 *** docker client
 #+BEGIN_SRC emacs-lisp
-  (use-package docker
-    :ensure t
-    :config (progn (docker-global-mode)))
+  ;; (use-package docker
+  ;;   :ensure t
+  ;;   :config (progn (docker-global-mode)))
 #+END_SRC
 *** dockerfile-mode
 #+BEGIN_SRC emacs-lisp
@@ -1834,7 +1839,7 @@ Load main.org inside extra/xxx directory.
 #+END_SRC
 *** docker-compose-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package docker-compose-mode)
+  ;; (use-package docker-compose-mode)
 #+END_SRC
 *** yaml-mode
 #+BEGIN_SRC emacs-lisp
