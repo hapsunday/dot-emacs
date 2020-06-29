@@ -139,13 +139,19 @@ ref:[[http://www.mygooglest.com/fni/dot-emacs.html]]
 #+BEGIN_SRC emacs-lisp
   (require 'package)
 
+  ;; (setq package-archives
+  ;;         '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+  ;;           ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+  ;;           ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
+
   (setq package-archives
-          '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-            ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
+          '(("gnu"   . "https://elpa.emacs-china.org/gnu/")
+            ("melpa" . "https://elpa.emacs-china.org/melpa/")
+            ("org" . "https://elpa.emacs-china.org/org/")
+            ("marmalade" . "https://elpa.emacs-china.org/marmalade/")))
 
   (setq package-enable-at-startup nil)
-  (package-initialize)
+  ;;; (package-initialize)
   (package-refresh-contents)
 #+END_SRC
 
@@ -303,17 +309,42 @@ hippie-expand会优先使用表最前面的函数来补全。
   ;; (add-hook 'shell-mode-hook 'ansi-color-for-comint-mode-on)
   ;; comint install
   (use-package xterm-color
+    :ensure t
     :config (progn
-              (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+              (require 'xterm-color)
               (setq comint-output-filter-functions
                     (remove 'ansi-color-process-output comint-output-filter-functions))
-              (require 'eshell)
-              (add-hook 'eshell-mode-hook
+
+              (add-hook 'shell-mode-hook
                         (lambda ()
-                          (setq xterm-color-preserve-properties t)))
-              (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
-              (setq eshell-output-filter-functions
-                    (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
+                          ;; Disable font-locking in this buffer to improve performance
+                          (font-lock-mode -1)
+                          ;; Prevent font-locking from being re-enabled in this buffer
+                          (make-local-variable 'font-lock-function)
+                          (setq font-lock-function (lambda (_) nil))
+                          (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t)))
+              (setenv "TERM" "xterm-256color")
+
+
+              ;; (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter)
+              ;; (setq comint-output-filter-functions
+              ;;       (remove 'ansi-color-process-output comint-output-filter-functions))
+              ;; (add-hook 'shell-mode-hook
+              ;;           (lambda ()
+              ;;             ;; Disable font-locking in this buffer to improve performance
+              ;;             (font-lock-mode -1)
+              ;;             ;; Prevent font-locking from being re-enabled in this buffer
+              ;;             (make-local-variable 'font-lock-function)
+              ;;             (setq font-lock-function (lambda (_) nil))
+              ;;             (add-hook 'comint-preoutput-filter-functions 'xterm-color-filter nil t)))
+
+              ;; (require 'eshell)
+              ;; (add-hook 'eshell-mode-hook
+              ;;           (lambda ()
+              ;;             (setq xterm-color-preserve-properties t)))
+              ;; (add-to-list 'eshell-preoutput-filter-functions 'xterm-color-filter)
+              ;; (setq eshell-output-filter-functions
+              ;;       (remove 'eshell-handle-ansi-color eshell-output-filter-functions))
               )
     )
 
@@ -1260,15 +1291,19 @@ ref:[[https://github.com/jorgenschaefer/elpy/wiki/Installation]]
 
     (elpy-enable)
     ;; setup virtualenv
-    ;; (pyvenv-activate "/Users/zhangkai/local/virtualenv-list/py4j")
+    (let ((dota/virtual-env-path (getenv "GLOBAL_VIRTUALENV_PATH")))
+      (when (and (stringp dota/virtual-env-path)
+                 (> (length dota/virtual-env-path) 1))
+        (pyvenv-activate dota/virtual-env-path)))
+    ;; (pyvenv-activate "/home/demouser/local/py36")
     ;;(elpy-use-ipython)
-    (setq python-shell-interpreter-args "--simple-prompt --pprint")
+    ;;(setq python-shell-interpreter-args "--simple-prompt --pprint")
 
-    ;; (setq python-shell-interpreter "jupyter"
-    ;;       python-shell-interpreter-args "console --simple-prompt"
-    ;;       python-shell-prompt-detect-failure-warning nil)
-    ;; (add-to-list 'python-shell-completion-native-disabled-interpreters
-    ;;              "jupyter")
+    (setq python-shell-interpreter "jupyter"
+          python-shell-interpreter-args "console --simple-prompt"
+          python-shell-prompt-detect-failure-warning nil)
+    (add-to-list 'python-shell-completion-native-disabled-interpreters
+                 "jupyter")
 
     ;; fix company-yasnippet
     ;; ref: https://github.com/jorgenschaefer/elpy/issues/530
@@ -1541,8 +1576,8 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
 #+END_SRC
 *** lua-mode
 #+BEGIN_SRC emacs-lisp
-  (use-package lua-mode
-    :ensure t)
+  ;; (use-package lua-mode
+  ;;   :ensure t)
 #+END_SRC
 *** java ide like
 #+BEGIN_SRC emacs-lisp
