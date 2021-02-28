@@ -1855,6 +1855,8 @@ Just keep pressing the key until it selects what you want.
     :bind ("C-c m" . er/expand-region))
 #+END_SRC
 
+*** TODO try vterm
+
 *** Guess key-binding
 #+BEGIN_SRC emacs-lisp
   (defun zhk/guess-where-keybinding-is-defined (key)
