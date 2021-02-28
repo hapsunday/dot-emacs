@@ -33,7 +33,7 @@ changing the path appropriately, but you'll probably want to tweak it extensivel
 
   (setq max-specpdl-size 64000)
   (setq max-lisp-eval-depth 2048) ;; default 500
-  (setq gc-cons-threshold (* 128 1024 1024))
+  (setq gc-cons-threshold (* 256 1024 1024))
 #+END_SRC
 
 ** Set up Environment
@@ -139,16 +139,16 @@ ref:[[http://www.mygooglest.com/fni/dot-emacs.html]]
 #+BEGIN_SRC emacs-lisp
   (require 'package)
 
-  ;; (setq package-archives
-  ;;         '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-  ;;           ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-  ;;           ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
-
   (setq package-archives
-          '(("gnu"   . "https://elpa.emacs-china.org/gnu/")
-            ("melpa" . "https://elpa.emacs-china.org/melpa/")
-            ("org" . "https://elpa.emacs-china.org/org/")
-            ("marmalade" . "https://elpa.emacs-china.org/marmalade/")))
+          '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+            ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+            ("org" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/org/")))
+
+  ;; (setq package-archives
+  ;;         '(("gnu"   . "https://elpa.emacs-china.org/gnu/")
+  ;;           ("melpa" . "https://elpa.emacs-china.org/melpa/")
+  ;;           ("org" . "https://elpa.emacs-china.org/org/")
+  ;;           ("marmalade" . "https://elpa.emacs-china.org/marmalade/")))
 
   (setq package-enable-at-startup nil)
   ;;; (package-initialize)
@@ -276,6 +276,19 @@ emacs中，改变文件时，默认都会产生备份文件（以~结尾的文�
   (if (not (file-exists-p zhk/backup-dir))
       (make-directory zhk/backup-dir))
   (setq backup-directory-alist `((".*" . ,zhk/backup-dir)))
+
+  (setq ;backup-directory-alist '(("." . "~/.emacs.d/backup"))
+        backup-by-copying t
+        version-control t
+        delete-old-versions t
+        kept-new-versions 20
+        kept-old-versions 5)
+
+  (use-package real-auto-save
+    :ensure t
+    :demand t
+    :config (setq real-auto-save-interval 10)
+    :hook (prog-mode . real-auto-save-mode))
 #+END_SRC
 
 **** set up hippie-expand
@@ -1636,53 +1649,26 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
   ;;    ;;       ("C-z" . hydra-meghanada/body))
   ;;    :commands
   ;;    (meghanada-mode)))
-  (condition-case nil
-      (require 'use-package)
-    (file-error
-     (require 'package)
-     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-     (package-initialize)
-     (package-refresh-contents)
-     (package-install 'use-package)
-     (require 'use-package)))
+  ;; (condition-case nil
+  ;;     (require 'use-package)
+  ;;   (file-error
+  ;;    (require 'package)
+  ;;    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+  ;;    (package-initialize)
+  ;;    (package-refresh-contents)
+  ;;    (package-install 'use-package)
+  ;;    (require 'use-package)))
 
-  (use-package projectile :ensure t)
-  (use-package treemacs :ensure t)
+  ;; (use-package projectile :ensure t)
+  ;; (use-package treemacs :ensure t)
   (use-package yasnippet :ensure t)
-  (use-package lsp-mode :ensure t)
+  ;; (use-package lsp-mode :ensure t)
   (use-package hydra :ensure t)
-  (use-package company-lsp :ensure t)
-  (use-package lsp-ui :ensure t)
-  (use-package lsp-java :ensure t :after lsp-mode
-    :config (add-hook 'java-mode-hook #'lsp))
+  ;; (use-package company-lsp :ensure t)
+  ;; (use-package lsp-ui :ensure t)
+  ;; (use-package lsp-java :ensure t :after lsp-mode
+  ;;   :config (add-hook 'java-mode-hook #'lsp))
 
-  ;; (use-package dap-mode
-  ;;   :ensure t :after lsp-mode
-  ;;   :config
-  ;;   (dap-mode t)
-  ;;   (dap-ui-mode t))
-
-  ;; (use-package dap-java :after (lsp-java))
-  ;; (use-package lsp-java-treemacs :after (treemacs))
-
-  ;; (GNULinux
-  ;;  (use-package lsp-mode
-  ;;    :ensure t
-  ;;    :init (progn
-  ;;            (add-hook 'java-mode-hook #'lsp-mode)
-  ;;            (setq lsp-highlight-symbol-at-point nil))
-  ;;    :config (progn
-  ;;              (use-package lsp-java
-  ;;                :ensure t))))
-
-  ;; (Windows
-  ;;  (use-package jdee
-  ;;    :if (equal system-type 'windows-nt)
-  ;;    :ensure t
-  ;;    :config
-  ;;    (setq jdee-server-dir
-  ;;          (expand-file-name ".emacs.d/jdee-bundle-1.1-SNAPSHOT.jar-jar-with-dependencies.jar" zhk-top-dir))
-  ;;    ))
 #+END_SRC
 *** setup markdown
 #+BEGIN_SRC emacs-lisp
@@ -1727,6 +1713,48 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
 #+BEGIN_SRC emacs-lisp
   ;; (use-package graphviz-dot-mode
   ;;   :ensure t)
+#+END_SRC
+
+*** Configuration for eglot
+#+BEGIN_SRC emacs-lisp
+  (use-package project
+    :ensure t
+    :config (progn
+              (defun fn-zhk/project-find-go-module (dir)
+                (when-let ((root (locate-dominating-file dir "go.mod")))
+                  (cons 'go-module root)))
+              (cl-defmethod project-root ((project (head go-module)))
+                (cdr project))
+
+              (add-hook 'project-find-functions #'fn-zhk/project-find-go-module))
+    )
+
+  (use-package flymake
+    :ensure t)
+
+  (use-package which-key
+    :ensure t
+    :diminish which-key-mode
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 1))
+
+  (use-package eglot
+    :ensure t
+    :config (progn
+              (setq-default eglot-workspace-configuration
+                            '((:gopls .
+                                      ((staticcheck . t)
+                                       (matcher . "CaseSensitive"))))))
+    )
+
+  (use-package go-mode
+    :ensure t
+    :init (progn (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
+    :config (progn (add-hook 'go-mode-hook 'eglot-ensure)
+                   (defun fn-zhk/eglot-format-golang-buffer-on-save ()
+                     (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+                   (add-hook 'go-mode-hook #'fn-zhk/eglot-format-golang-buffer-on-save)))
 #+END_SRC
 
 ** Org-mode configuration
