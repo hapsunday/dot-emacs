@@ -1598,12 +1598,6 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
   ;;   :ensure t
   ;;   :defer t)
 
-  (use-package google-c-style
-    :defer t
-    :ensure t
-    :commands
-    (google-set-c-style))
-
   (use-package rainbow-delimiters
     :ensure t
     :config
@@ -1625,49 +1619,11 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
     (add-hook 'scala-mode-hook 'highlight-symbol-mode)
     (add-hook 'c-mode-common-hook 'highlight-symbol-mode))
 
-  ;; (GNULinux
-  ;;  (use-package meghanada
-  ;;    :ensure t
-  ;;    :init
-  ;;    (add-hook 'java-mode-hook
-  ;;              (lambda ()
-  ;;                ;; (google-set-c-style)
-  ;;                ;; (google-make-newline-indent)
-  ;;                (meghanada-mode t)
-  ;;                ;; (smartparens-mode t)
-  ;;                ;; (rainbow-delimiters-mode t)
-  ;;                ;; (highlight-symbol-mode t)
-  ;;                (add-hook 'before-save-hook 'meghanada-code-beautify-before-save)))
-  ;;    ;; :config
-  ;;    ;; (setq meghanada-server-remote-debug t)
-  ;;    ;; (setq meghanada-javac-xlint "-Xlint:all,-processing")
-  ;;    ;; :bind
-  ;;    ;; (:map meghanada-mode-map
-  ;;    ;;       ("C-S-t" . meghanada-switch-testcase)
-  ;;    ;;       ("M-RET" . meghanada-local-variable)
-  ;;    ;;       ("C-M-." . helm-imenu)
-  ;;    ;;       ("C-z" . hydra-meghanada/body))
-  ;;    :commands
-  ;;    (meghanada-mode)))
-  ;; (condition-case nil
-  ;;     (require 'use-package)
-  ;;   (file-error
-  ;;    (require 'package)
-  ;;    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
-  ;;    (package-initialize)
-  ;;    (package-refresh-contents)
-  ;;    (package-install 'use-package)
-  ;;    (require 'use-package)))
-
   ;; (use-package projectile :ensure t)
   ;; (use-package treemacs :ensure t)
   (use-package yasnippet :ensure t)
   ;; (use-package lsp-mode :ensure t)
   (use-package hydra :ensure t)
-  ;; (use-package company-lsp :ensure t)
-  ;; (use-package lsp-ui :ensure t)
-  ;; (use-package lsp-java :ensure t :after lsp-mode
-  ;;   :config (add-hook 'java-mode-hook #'lsp))
 
 #+END_SRC
 *** setup markdown
