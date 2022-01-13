@@ -1203,6 +1203,13 @@ Before write file, update =Last Modified: <time-stamp>=
                   company-dabbrev-ignore-case nil
                   company-require-match nil)
             (setq company-global-modes '(not org-mode nxml-mode))
+            ;; when working in tramp-mode,
+            ;; some function in company-mode will hang wait
+            ;; for reading remote files
+            (defun company-mode/disable-when-in-remote ()
+              (when (file-remote-p default-directory)
+                (company-mode -1)))
+            (add-hook 'shell-mode-hook 'company-mode/disable-when-in-remote)
             (global-company-mode))
     :preface (progn
                ;; enable yasnippet everywhere
