@@ -60,19 +60,6 @@ ref: [[http://www.mygooglest.com/fni/dot-emacs.html]]
     "Execute any number of forms if running under GNU Emacs."
     (list 'if (string-match "GNU Emacs" (version))
           (cons 'progn body)))
-  
-  (defmacro GNUEmacs23 (&rest body)
-    (list 'if (string-match "GNU Emacs 23" (version))
-          (cons 'progn body)))
-  
-  (defmacro GNUEmacs22 (&rest body)
-    (list 'if (string-match "GNU Emacs 22" (version))
-          (cons 'progn body)))
-  
-  (defmacro XEmacs (&rest body)
-    "Execute any number of forms if running under XEmacs."
-    (list 'if (string-match "XEmacs" (version))
-          (cons 'progn body)))
   #+END_SRC
 
 ** Set up Proxy
@@ -619,13 +606,14 @@ ref: [[http://tuhdo.github.io/helm-intro.html][helm-tutorial]]
   (use-package helm
     :ensure t
     :diminish helm-mode
+    :init (progn (require 'helm-mode))
     :config (progn
               (mapcar #'(lambda (package) (unless (package-installed-p package) (package-install package)))
                       '(helm-swoop helm-flx helm-fuzzier smex helm-smex))
-              (use-package helm-ido-like
-                :load-path "site-lisp"
-                :config (progn
-                          (helm-ido-like)))
+              ;; (use-package helm-ido-like
+              ;;   :load-path "site-lisp"
+              ;;   :config (progn
+              ;;             (helm-ido-like)))
               ;; (require 'helm-config)
               ;; (helm-mode +1)
               ;; (setq helm-buffers-fuzzy-matching t
@@ -768,26 +756,41 @@ ref: [[http://tuhdo.github.io/helm-intro.html][helm-tutorial]]
 #+END_SRC
 *** chinese-pyim
 #+BEGIN_SRC emacs-lisp
-  (use-package pyim
-    :ensure t
-    :config
-    ;; 激活 basedict 拼音词库
-    (use-package pyim-basedict
-      :ensure nil
-      :config (pyim-basedict-enable))
-    ;; 五笔用户使用 wbdict 词库
-    (use-package pyim-wbdict
-      :ensure t
-      :config (pyim-wbdict-gbk-enable))
+  ;; (use-package pyim
+  ;;   :ensure t
+  ;;   :config
+  ;;   ;; 激活 basedict 拼音词库
+  ;;   (use-package pyim-basedict
+  ;;     :ensure nil
+  ;;     :config (pyim-basedict-enable))
+  ;;   ;; 五笔用户使用 wbdict 词库
+  ;;   (use-package pyim-wbdict
+  ;;     :ensure t
+  ;;     :config (pyim-wbdict-gbk-enable))
 
-    (setq default-input-method "pyim")
-    (setq pyim-default-scheme 'wubi)
-    (setq pyim-page-style 'one-line)
+  ;;   (setq default-input-method "pyim")
+  ;;   (setq pyim-default-scheme 'wubi)
+  ;;   (setq pyim-page-style 'one-line)
 
-    ;; 使用 pupup-el 来绘制选词框
-    (setq pyim-page-tooltip 'popup)
-    ;; 选词框显示7个候选词
-    (setq pyim-page-length 7))
+  ;;   ;; 使用 pupup-el 来绘制选词框
+  ;;   (setq pyim-page-tooltip 'popup)
+  ;;   ;; 选词框显示7个候选词
+  ;;   (setq pyim-page-length 7))
+#+END_SRC
+*** configure rime input-method
+此处使用RIME输入法
+#+BEGIN_SRC elisp
+  (let ((tmp-rime-root (expand-file-name "librime" zhk-top-dir)))
+    (require 'f)
+    (when (f-exists? tmp-rime-root)
+      (use-package rime
+        :ensure t
+        :custom
+        (rime-librime-root tmp-rime-root)
+        (rime-share-data-dir (expand-file-name "data" tmp-rime-root))
+        (rime-user-data-dir (expand-file-name "user" tmp-rime-root))
+        (rime-show-candidate 'posframe)
+        (default-input-method "rime"))))
 #+END_SRC
 ** Coding
 *** add auto-mode-list
@@ -1300,42 +1303,7 @@ Before write file, update =Last Modified: <time-stamp>=
   ;; (add-hook 'hs-minor-mode-hook 'zhk-set-code-fold-toggle)
 #+END_SRC
 *** python
-**** setup =elpy=
-ref:[[https://github.com/jorgenschaefer/elpy/wiki/Installation]]
-#+BEGIN_SRC emacs-lisp
-  (use-package elpy
-    :ensure t
-    :config
-    (require 'elpy)
-    (setq elpy-modules (delq 'elpy-module-company elpy-modules))
-
-    (elpy-enable)
-    ;; setup virtualenv
-    (let ((dota/virtual-env-path (getenv "GLOBAL_VIRTUALENV_PATH")))
-      (when (and (stringp dota/virtual-env-path)
-                 (> (length dota/virtual-env-path) 1))
-        (pyvenv-activate dota/virtual-env-path)))
-    ;; (pyvenv-activate "/home/demouser/local/py36")
-    ;;(elpy-use-ipython)
-    ;;(setq python-shell-interpreter-args "--simple-prompt --pprint")
-
-    (setq python-shell-interpreter "jupyter"
-          python-shell-interpreter-args "console --simple-prompt"
-          python-shell-prompt-detect-failure-warning nil)
-    (add-to-list 'python-shell-completion-native-disabled-interpreters
-                 "jupyter")
-
-    ;; fix company-yasnippet
-    ;; ref: https://github.com/jorgenschaefer/elpy/issues/530
-    (add-hook 'python-mode-hook
-              (lambda ()
-                ;; explicitly load company for the occasion when the deferred
-                ;; loading with use-package hasn't kicked in yet
-                (company-mode)
-                (add-to-list 'company-backends
-                             (company-mode/backend-with-yas 'elpy-company-backend))))
-    )
-#+END_SRC
+**** use eglot
 **** setup =py-autopep8= beautify a Python buffer
 #+BEGIN_SRC emacs-lisp
   ;; (use-package py-autopep8
@@ -1628,10 +1596,7 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
 
   ;; (use-package projectile :ensure t)
   ;; (use-package treemacs :ensure t)
-  (use-package yasnippet :ensure t)
-  ;; (use-package lsp-mode :ensure t)
   (use-package hydra :ensure t)
-
 #+END_SRC
 *** setup markdown
 #+BEGIN_SRC emacs-lisp
@@ -1704,20 +1669,33 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
 
   (use-package eglot
     :ensure t
-    :config (progn
-              (setq-default eglot-workspace-configuration
-                            '((:gopls .
-                                      ((staticcheck . t)
-                                       (matcher . "CaseSensitive"))))))
-    )
+    :config
+    (progn
+      (add-to-list 'eglot-server-programs
+                   `(python-mode . ("pyright-langserver" "--stdio")))
+      (setq-default eglot-workspace-configuration
+                    '((:gopls .
+                              ((staticcheck . t)
+                               (matcher . "CaseSensitive")))))
+      (defun inner-zhk/python-eglot-ensure ()
+        "reorder the compay-backends and enable eglot"
+        (setq-local company-backends
+                    (cons 'company-capf
+                          (remove 'company-capf company-backends)))
+        (eglot-ensure))
+      (add-hook 'python-mode-hook 'inner-zhk/python-eglot-ensure)))
 
   (use-package go-mode
     :ensure t
-    :init (progn (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
-    :config (progn (add-hook 'go-mode-hook 'eglot-ensure)
-                   (defun fn-zhk/eglot-format-golang-buffer-on-save ()
-                     (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
-                   (add-hook 'go-mode-hook #'fn-zhk/eglot-format-golang-buffer-on-save)))
+    :init
+    (progn
+      (add-to-list 'auto-mode-alist '("\\.go\\'" . go-mode)))
+    :config
+    (progn
+      (add-hook 'go-mode-hook 'eglot-ensure)
+      (defun fn-zhk/eglot-format-golang-buffer-on-save ()
+        (add-hook 'before-save-hook #'eglot-format-buffer -10 t))
+      (add-hook 'go-mode-hook #'fn-zhk/eglot-format-golang-buffer-on-save)))
 #+END_SRC
 
 ** Org-mode configuration
