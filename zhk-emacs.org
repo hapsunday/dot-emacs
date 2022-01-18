@@ -1447,6 +1447,7 @@ Before write file, update =Last Modified: <time-stamp>=
               (when (file-remote-p default-directory)
                 (company-mode -1)))
             (add-hook 'shell-mode-hook 'company-mode/disable-when-in-remote)
+            (add-hook 'eshell-mode-hook 'company-mode/disable-when-in-remote)
             (global-company-mode))
     :preface (progn
                ;; enable yasnippet everywhere
