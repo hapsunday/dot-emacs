@@ -1912,14 +1912,7 @@ reference: [[http://ensime.github.io/editors/emacs/install/]]
                     '((:gopls .
                               ((staticcheck . t)
                                (matcher . "CaseSensitive")))))
-      ;; (defun inner-zhk/python-eglot-ensure ()
-      ;;   "reorder the compay-backends and enable eglot"
-      ;;   (setq-local company-backends
-      ;;               (cons 'company-capf
-      ;;                     (remove 'company-capf company-backends)))
-      ;;   (eglot-ensure))
-      ;; (add-hook 'python-mode-hook 'inner-zhk/python-eglot-ensure))
-      (add-hook 'python-mode-hook 'eglot-ensure))
+      (add-hook 'python-mode-hook 'eglot-ensure)))
 
   (use-package go-mode
     :ensure t
